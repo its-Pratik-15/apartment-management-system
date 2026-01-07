@@ -148,7 +148,7 @@ async function main() {
       title: 'Welcome to Apartment Management System',
       content: 'This is a sample notice for all residents. Please check the notice board regularly for updates.',
       isPinned: true,
-      targetRoles: ['OWNER', 'TENANT'],
+      targetRoles: 'OWNER,TENANT',
       authorId: secretary.id
     }
   });

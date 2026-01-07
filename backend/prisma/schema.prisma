@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
@@ -191,10 +191,10 @@ model VisitorLog {
 model Notice {
   id          String    @id @default(cuid())
   title       String
-  content     String
+  content     String    @db.Text
   isPinned    Boolean   @default(false)
   isActive    Boolean   @default(true)
-  targetRoles UserRole[]
+  targetRoles String    // Comma-separated roles: "OWNER,TENANT"
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   
