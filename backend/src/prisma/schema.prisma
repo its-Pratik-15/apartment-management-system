@@ -1,0 +1,206 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User roles enum
+enum UserRole {
+  OWNER
+  TENANT
+  SECRETARY
+  STAFF
+  GUARD
+}
+
+// Occupancy status enum
+enum OccupancyStatus {
+  OWNER_OCCUPIED
+  TENANT_OCCUPIED
+}
+
+// Bill types enum
+enum BillType {
+  RENT
+  ELECTRICITY
+  WATER
+  MAINTENANCE
+  PARKING
+  PENALTY
+}
+
+// Bill status enum
+enum BillStatus {
+  DUE
+  PAID
+  OVERDUE
+}
+
+// Issue status enum
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+// Issue priority enum
+enum IssuePriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// User model
+model User {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  firstName   String
+  lastName    String
+  phone       String?
+  role        UserRole
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  ownedFlats  Flat[]    @relation("FlatOwner")
+  tenantFlats Lease[]   @relation("TenantLease")
+  bills       Bill[]
+  visitorLogs VisitorLog[]
+  notices     Notice[]
+  issues      Issue[]
+  
+  @@map("users")
+}
+
+// Flat model
+model Flat {
+  id              String          @id @default(cuid())
+  flatNumber      String          @unique
+  floor           Int
+  bedrooms        Int
+  bathrooms       Int
+  area            Float
+  occupancyStatus OccupancyStatus @default(OWNER_OCCUPIED)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  // Relationships
+  ownerId         String
+  owner           User            @relation("FlatOwner", fields: [ownerId], references: [id])
+  leases          Lease[]
+  bills           Bill[]
+  visitorLogs     VisitorLog[]
+  
+  @@map("flats")
+}
+
+// Lease model
+model Lease {
+  id           String    @id @default(cuid())
+  startDate    DateTime
+  endDate      DateTime
+  monthlyRent  Float
+  securityDeposit Float?
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  // Relationships
+  flatId       String
+  flat         Flat      @relation(fields: [flatId], references: [id])
+  tenantId     String
+  tenant       User      @relation("TenantLease", fields: [tenantId], references: [id])
+  
+  @@map("leases")
+}
+
+// Bill model
+model Bill {
+  id          String     @id @default(cuid())
+  billType    BillType
+  amount      Float
+  dueDate     DateTime
+  status      BillStatus @default(DUE)
+  lateFee     Float?     @default(0)
+  paidDate    DateTime?
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  // Relationships
+  flatId      String
+  flat        Flat       @relation(fields: [flatId], references: [id])
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  
+  @@map("bills")
+}
+
+// Visitor log model
+model VisitorLog {
+  id           String    @id @default(cuid())
+  visitorName  String
+  visitorPhone String?
+  purpose      String
+  inTime       DateTime?
+  outTime      DateTime?
+  isApproved   Boolean?
+  rejectionReason String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  // Relationships
+  flatId       String
+  flat         Flat      @relation(fields: [flatId], references: [id])
+  guardId      String
+  guard        User      @relation(fields: [guardId], references: [id])
+  
+  @@map("visitor_logs")
+}
+
+// Notice model
+model Notice {
+  id          String    @id @default(cuid())
+  title       String
+  content     String
+  isPinned    Boolean   @default(false)
+  isActive    Boolean   @default(true)
+  targetRoles UserRole[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  // Relationships
+  authorId    String
+  author      User      @relation(fields: [authorId], references: [id])
+  
+  @@map("notices")
+}
+
+// Issue model
+model Issue {
+  id          String        @id @default(cuid())
+  title       String
+  description String
+  category    String
+  priority    IssuePriority @default(MEDIUM)
+  status      IssueStatus   @default(OPEN)
+  resolution  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  
+  // Relationships
+  reporterId  String
+  reporter    User          @relation(fields: [reporterId], references: [id])
+  
+  @@map("issues")
+}
