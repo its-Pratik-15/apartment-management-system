@@ -9,6 +9,8 @@ import StaffDashboard from '../components/dashboards/StaffDashboard';
 import GuardDashboard from '../components/dashboards/GuardDashboard';
 import Users from './Users';
 import Bills from './Bills';
+import Flats from './Flats';
+import Leases from './Leases';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -49,8 +51,8 @@ const Dashboard = () => {
         {user?.role === 'SECRETARY' && (
           <>
             <Route path="/users" element={<Users />} />
-            <Route path="/flats" element={<div>Flats Management (Coming Soon)</div>} />
-            <Route path="/leases" element={<div>Lease Management (Coming Soon)</div>} />
+            <Route path="/flats" element={<Flats />} />
+            <Route path="/leases" element={<Leases />} />
             <Route path="/notices" element={<div>Notice Management (Coming Soon)</div>} />
             <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
           </>
