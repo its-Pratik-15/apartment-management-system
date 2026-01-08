@@ -16,7 +16,7 @@ async function main() {
       password: hashedPassword,
       firstName: 'Admin',
       lastName: 'Secretary',
-      phone: '+1234567890',
+      phone: '+91-9876543210',
       role: 'SECRETARY'
     }
   });
@@ -28,7 +28,7 @@ async function main() {
       password: hashedPassword,
       firstName: 'John',
       lastName: 'Smith',
-      phone: '+1234567891',
+      phone: '+91-9876543211',
       role: 'OWNER'
     }
   });
@@ -39,7 +39,7 @@ async function main() {
       password: hashedPassword,
       firstName: 'Sarah',
       lastName: 'Johnson',
-      phone: '+1234567892',
+      phone: '+91-9876543212',
       role: 'OWNER'
     }
   });
@@ -51,7 +51,7 @@ async function main() {
       password: hashedPassword,
       firstName: 'Mike',
       lastName: 'Davis',
-      phone: '+1234567893',
+      phone: '+91-9876543213',
       role: 'TENANT'
     }
   });
@@ -63,7 +63,7 @@ async function main() {
       password: hashedPassword,
       firstName: 'Tom',
       lastName: 'Wilson',
-      phone: '+1234567894',
+      phone: '+91-9876543214',
       role: 'STAFF'
     }
   });
@@ -75,7 +75,7 @@ async function main() {
       password: hashedPassword,
       firstName: 'Alex',
       lastName: 'Brown',
-      phone: '+1234567895',
+      phone: '+91-9876543215',
       role: 'GUARD'
     }
   });
@@ -110,8 +110,8 @@ async function main() {
     data: {
       startDate: new Date('2024-01-01'),
       endDate: new Date('2024-12-31'),
-      monthlyRent: 2500.00,
-      securityDeposit: 5000.00,
+      monthlyRent: 25000.00,
+      securityDeposit: 50000.00,
       flatId: flat1.id,
       tenantId: tenant1.id
     }
@@ -121,7 +121,7 @@ async function main() {
   await prisma.bill.create({
     data: {
       billType: 'RENT',
-      amount: 2500.00,
+      amount: 25000.00,
       dueDate: new Date('2024-02-01'),
       status: 'DUE',
       description: 'Monthly rent for January 2024',
@@ -133,7 +133,7 @@ async function main() {
   await prisma.bill.create({
     data: {
       billType: 'MAINTENANCE',
-      amount: 150.00,
+      amount: 1500.00,
       dueDate: new Date('2024-02-01'),
       status: 'DUE',
       description: 'Monthly maintenance charges',

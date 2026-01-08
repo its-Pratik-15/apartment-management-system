@@ -7,6 +7,8 @@ import TenantDashboard from '../components/dashboards/TenantDashboard';
 import SecretaryDashboard from '../components/dashboards/SecretaryDashboard';
 import StaffDashboard from '../components/dashboards/StaffDashboard';
 import GuardDashboard from '../components/dashboards/GuardDashboard';
+import Users from './Users';
+import Bills from './Bills';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -42,8 +44,37 @@ const Dashboard = () => {
     <DashboardLayout>
       <Routes>
         <Route path="/" element={getDashboardComponent()} />
+        
+        {/* Secretary-only routes */}
+        {user?.role === 'SECRETARY' && (
+          <>
+            <Route path="/users" element={<Users />} />
+            <Route path="/flats" element={<div>Flats Management (Coming Soon)</div>} />
+            <Route path="/leases" element={<div>Lease Management (Coming Soon)</div>} />
+            <Route path="/notices" element={<div>Notice Management (Coming Soon)</div>} />
+            <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
+          </>
+        )}
+        
+        {/* Bills - accessible by all roles */}
+        <Route path="/bills" element={<Bills />} />
+        
+        {/* Issues - accessible by owners and tenants */}
+        {(user?.role === 'OWNER' || user?.role === 'TENANT' || user?.role === 'SECRETARY' || user?.role === 'STAFF') && (
+          <Route path="/issues" element={<div>Issue Management (Coming Soon)</div>} />
+        )}
+        
+        {/* Visitors - accessible by owners, tenants, and guards */}
+        {(user?.role === 'OWNER' || user?.role === 'TENANT' || user?.role === 'GUARD' || user?.role === 'SECRETARY') && (
+          <Route path="/visitors" element={<div>Visitor Management (Coming Soon)</div>} />
+        )}
+        
+        {/* Common routes */}
         <Route path="/profile" element={<div>Profile Page (Coming Soon)</div>} />
         <Route path="/settings" element={<div>Settings Page (Coming Soon)</div>} />
+        
+        {/* Catch all */}
+        <Route path="*" element={<div>Page not found</div>} />
       </Routes>
     </DashboardLayout>
   );
