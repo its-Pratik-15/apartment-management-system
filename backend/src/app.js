@@ -59,7 +59,12 @@ app.get('/health', (req, res) => {
   });
 });
 
-// API routes placeholder
+// API routes
+const authRoutes = require('./routes/auth');
+
+app.use('/api/auth', authRoutes);
+
+// API routes placeholder for other endpoints
 app.use('/api', (req, res) => {
   res.status(404).json({
     success: false,
