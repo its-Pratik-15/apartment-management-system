@@ -115,6 +115,38 @@ export const apiService = {
   alerts: {
     getAll: (params) => api.get('/alerts', { params }),
   },
+
+  // Visitor endpoints
+  visitors: {
+    getAll: (params) => api.get('/visitors', { params }),
+    getById: (id) => api.get(`/visitors/${id}`),
+    create: (visitorData) => api.post('/visitors', visitorData),
+    updateStatus: (id, statusData) => api.patch(`/visitors/${id}/status`, statusData),
+    recordExit: (id) => api.patch(`/visitors/${id}/exit`),
+    getPending: () => api.get('/visitors/pending'),
+  },
+
+  // Notice endpoints
+  notices: {
+    getAll: (params) => api.get('/notices', { params }),
+    getById: (id) => api.get(`/notices/${id}`),
+    create: (noticeData) => api.post('/notices', noticeData),
+    update: (id, noticeData) => api.put(`/notices/${id}`, noticeData),
+    delete: (id) => api.delete(`/notices/${id}`),
+    togglePin: (id) => api.patch(`/notices/${id}/pin`),
+    getPinned: () => api.get('/notices/pinned'),
+  },
+
+  // Issue endpoints
+  issues: {
+    getAll: (params) => api.get('/issues', { params }),
+    getById: (id) => api.get(`/issues/${id}`),
+    create: (issueData) => api.post('/issues', issueData),
+    update: (id, issueData) => api.put(`/issues/${id}`, issueData),
+    delete: (id) => api.delete(`/issues/${id}`),
+    assign: (id, assignData) => api.patch(`/issues/${id}/assign`, assignData),
+    getStats: () => api.get('/issues/stats'),
+  },
 };
 
 export default api;
