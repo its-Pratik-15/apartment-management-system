@@ -1,5 +1,6 @@
 const app = require('./app');
 const { startLeaseExpiryJob } = require('./services/leaseService');
+const { startBillStatusUpdater } = require('./services/billService');
 
 const PORT = process.env.PORT || 5000;
 
@@ -13,6 +14,7 @@ const server = app.listen(PORT, () => {
   
   // Start background jobs
   leaseJobId = startLeaseExpiryJob();
+  startBillStatusUpdater();
 });
 
 // Graceful shutdown
