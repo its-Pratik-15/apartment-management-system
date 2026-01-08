@@ -14,14 +14,6 @@ const getAllNotices = async (req, res) => {
       where.isPinned = isPinned === 'true';
     }
 
-    // Filter notices based on user role
-    const userRole = req.user.role;
-    where.OR = [
-      { targetRoles: { contains: userRole } },
-      { targetRoles: { contains: 'ALL' } },
-      { targetRoles: null }
-    ];
-
     const [notices, total] = await Promise.all([
       prisma.notice.findMany({
         where,
