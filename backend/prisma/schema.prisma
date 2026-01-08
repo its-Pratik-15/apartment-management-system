@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "mysql" // Use "postgresql" for production
   url      = env("DATABASE_URL")
 }
 
@@ -194,7 +194,7 @@ model Notice {
   content     String    @db.Text
   isPinned    Boolean   @default(false)
   isActive    Boolean   @default(true)
-  targetRoles String    // Comma-separated roles: "OWNER,TENANT"
+  targetRoles String    // MySQL: "OWNER,TENANT" | PostgreSQL: JSON array or comma-separated
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   

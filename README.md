@@ -29,8 +29,29 @@ A comprehensive web application for managing apartment complexes with role-based
 ### Prerequisites
 
 - Node.js (v16 or higher)
-- PostgreSQL database
+- **Development**: MySQL database
+- **Production**: PostgreSQL database
 - npm or yarn
+
+### Database Setup
+
+**For Development (MySQL):**
+```bash
+# Install MySQL and create database
+mysql -u root -p
+CREATE DATABASE apartment_management;
+```
+
+**For Production (PostgreSQL):**
+```bash
+# Update prisma/schema.prisma:
+# Change: provider = "mysql" 
+# To: provider = "postgresql"
+
+# Update .env:
+# DATABASE_URL="postgresql://username:password@host:5432/apartment_management"
+# DIRECT_URL="postgresql://username:password@host:5432/apartment_management"
+```
 
 ### Installation
 
@@ -46,6 +67,7 @@ A comprehensive web application for managing apartment complexes with role-based
    npm install
    cp .env.example .env
    # Edit .env with your database credentials
+   # Development: MySQL, Production: PostgreSQL
    npm run db:generate
    npm run db:migrate
    npm run db:seed
@@ -154,6 +176,32 @@ apartment-management-system/
 │   └── package.json
 └── README.md
 ```
+
+## 🚀 Deployment
+
+### Switching from MySQL (Development) to PostgreSQL (Production)
+
+1. **Update Prisma Schema**
+   ```bash
+   # In prisma/schema.prisma, change:
+   provider = "mysql" // Use "postgresql" for production
+   # To:
+   provider = "postgresql"
+   ```
+
+2. **Update Environment Variables**
+   ```bash
+   # Replace MySQL URL with PostgreSQL URL
+   DATABASE_URL="postgresql://username:password@host:5432/apartment_management"
+   DIRECT_URL="postgresql://username:password@host:5432/apartment_management"
+   ```
+
+3. **Run Migration**
+   ```bash
+   npm run db:generate
+   npm run db:migrate
+   npm run db:seed
+   ```
 
 ## 🔧 Available Scripts
 
