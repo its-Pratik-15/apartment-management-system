@@ -11,6 +11,9 @@ import Users from './Users';
 import Bills from './Bills';
 import Flats from './Flats';
 import Leases from './Leases';
+import Notices from './Notices';
+import Issues from './Issues';
+import Visitors from './Visitors';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -53,7 +56,7 @@ const Dashboard = () => {
             <Route path="/users" element={<Users />} />
             <Route path="/flats" element={<Flats />} />
             <Route path="/leases" element={<Leases />} />
-            <Route path="/notices" element={<div>Notice Management (Coming Soon)</div>} />
+            <Route path="/notices" element={<Notices />} />
             <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
           </>
         )}
@@ -63,12 +66,12 @@ const Dashboard = () => {
         
         {/* Issues - accessible by owners and tenants */}
         {(user?.role === 'OWNER' || user?.role === 'TENANT' || user?.role === 'SECRETARY' || user?.role === 'STAFF') && (
-          <Route path="/issues" element={<div>Issue Management (Coming Soon)</div>} />
+          <Route path="/issues" element={<Issues />} />
         )}
         
         {/* Visitors - accessible by owners, tenants, and guards */}
         {(user?.role === 'OWNER' || user?.role === 'TENANT' || user?.role === 'GUARD' || user?.role === 'SECRETARY') && (
-          <Route path="/visitors" element={<div>Visitor Management (Coming Soon)</div>} />
+          <Route path="/visitors" element={<Visitors />} />
         )}
         
         {/* Common routes */}

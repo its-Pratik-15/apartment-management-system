@@ -35,12 +35,12 @@ app.use('/api/', limiter);
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'http://localhost:3001',
     process.env.FRONTEND_URL
   ].filter(Boolean),
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  optionsSuccessStatus: 200
 }));
 
 // Body parsing middleware
