@@ -61,8 +61,12 @@ app.get('/health', (req, res) => {
 
 // API routes
 const authRoutes = require('./routes/auth');
+const userRoutes = require('./routes/users');
+const flatRoutes = require('./routes/flats');
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/flats', flatRoutes);
 
 // API routes placeholder for other endpoints
 app.use('/api', (req, res) => {
