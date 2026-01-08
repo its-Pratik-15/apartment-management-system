@@ -51,7 +51,11 @@ router.put('/profile', [
 
 router.put('/change-password', [
   body('currentPassword').notEmpty().withMessage('Current password is required'),
-  validatePassword().withMessage('New password must meet security requirements'),
+  body('newPassword')
+    .isLength({ min: 8 })
+    .withMessage('New password must be at least 8 characters long')
+    .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]/)
+    .withMessage('New password must contain at least one uppercase letter, one lowercase letter, one number, and one special character'),
   body('newPassword').custom((value, { req }) => {
     if (value === req.body.currentPassword) {
       throw new Error('New password must be different from current password');
