@@ -142,7 +142,7 @@ async function main() {
     }
   });
 
-  // Create sample notice
+  // Create sample notices
   await prisma.notice.create({
     data: {
       title: 'Welcome to Apartment Management System',
@@ -153,7 +153,47 @@ async function main() {
     }
   });
 
-  // Create sample issue
+  await prisma.notice.create({
+    data: {
+      title: 'Monthly Maintenance Schedule',
+      content: 'Dear Residents, The monthly maintenance work will be carried out on the 15th of every month from 9 AM to 5 PM. This includes elevator servicing, water tank cleaning, and common area maintenance. Please plan accordingly.',
+      isPinned: false,
+      targetRoles: 'OWNER,TENANT',
+      authorId: secretary.id
+    }
+  });
+
+  await prisma.notice.create({
+    data: {
+      title: 'Security Guidelines',
+      content: 'For the safety of all residents, please ensure that you do not share the main gate access code with unauthorized persons. All visitors must be registered at the security desk. Emergency contact: +91-9876543200',
+      isPinned: true,
+      targetRoles: 'OWNER,TENANT,GUARD',
+      authorId: secretary.id
+    }
+  });
+
+  await prisma.notice.create({
+    data: {
+      title: 'Parking Rules Update',
+      content: 'New parking rules are now in effect. Each flat is allocated one parking space. Visitor parking is available on a first-come, first-served basis. Unauthorized vehicles will be towed at owner\'s expense.',
+      isPinned: false,
+      targetRoles: 'OWNER,TENANT',
+      authorId: secretary.id
+    }
+  });
+
+  await prisma.notice.create({
+    data: {
+      title: 'Staff Holiday Schedule',
+      content: 'Please note that maintenance staff will be on holiday from December 25th to January 2nd. For emergency maintenance issues during this period, please contact the secretary office.',
+      isPinned: false,
+      targetRoles: 'STAFF',
+      authorId: secretary.id
+    }
+  });
+
+  // Create sample issues
   await prisma.issue.create({
     data: {
       title: 'Elevator Maintenance Required',
@@ -162,6 +202,77 @@ async function main() {
       priority: 'HIGH',
       status: 'OPEN',
       reporterId: tenant1.id
+    }
+  });
+
+  await prisma.issue.create({
+    data: {
+      title: 'Water Leakage in Common Area',
+      description: 'There is water leakage near the main entrance. The floor is slippery and poses a safety risk.',
+      category: 'Plumbing',
+      priority: 'URGENT',
+      status: 'OPEN',
+      reporterId: owner1.id
+    }
+  });
+
+  await prisma.issue.create({
+    data: {
+      title: 'Parking Light Not Working',
+      description: 'The light in parking slot P-15 is not working. It\'s difficult to park in the evening.',
+      category: 'Electrical',
+      priority: 'MEDIUM',
+      status: 'OPEN',
+      reporterId: owner2.id,
+      resolution: 'Light bulb replaced and tested'
+    }
+  });
+
+  await prisma.issue.create({
+    data: {
+      title: 'Noise Complaint',
+      description: 'Loud music from flat A102 during night hours. Please address this issue.',
+      category: 'Noise',
+      priority: 'LOW',
+      status: 'OPEN',
+      reporterId: tenant1.id
+    }
+  });
+
+  // Create sample visitor logs
+  await prisma.visitorLog.create({
+    data: {
+      visitorName: 'Rahul Sharma',
+      visitorPhone: '+91-9876543220',
+      purpose: 'Family Visit',
+      inTime: new Date('2024-02-01T14:15:00'),
+      outTime: new Date('2024-02-01T18:30:00'),
+      isApproved: true,
+      flatId: flat1.id,
+      guardId: guard.id
+    }
+  });
+
+  await prisma.visitorLog.create({
+    data: {
+      visitorName: 'Priya Patel',
+      visitorPhone: '+91-9876543221',
+      purpose: 'Delivery',
+      isApproved: null,
+      flatId: flat2.id,
+      guardId: guard.id
+    }
+  });
+
+  await prisma.visitorLog.create({
+    data: {
+      visitorName: 'Amit Kumar',
+      visitorPhone: '+91-9876543222',
+      purpose: 'Maintenance Work',
+      inTime: new Date('2024-02-02T09:10:00'),
+      isApproved: true,
+      flatId: flat1.id,
+      guardId: guard.id
     }
   });
 
