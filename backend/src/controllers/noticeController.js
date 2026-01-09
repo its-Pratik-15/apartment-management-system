@@ -7,10 +7,20 @@ const getAllNotices = async (req, res) => {
   try {
     const { page = 1, limit = 10, isPinned } = req.query;
     const skip = (page - 1) * limit;
+    const userRole = req.user.role;
 
-    const where = {};
+    const where = {
+      isActive: true, // Only show active notices
+      OR: [
+        { targetRoles: { contains: userRole } },
+        { targetRoles: { contains: 'ALL' } },
+        { targetRoles: null },
+        { targetRoles: '' }
+      ]
+    };
     
-    if (isPinned !== undefined) {
+    // Add isPinned filter if specified
+    if (isPinned !== undefined && isPinned !== '') {
       where.isPinned = isPinned === 'true';
     }
 

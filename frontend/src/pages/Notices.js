@@ -40,7 +40,7 @@ const Notices = () => {
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({
       ...prev,
-      [key]: value,
+      [key]: value === '' ? '' : value,
       page: 1
     }));
   };
