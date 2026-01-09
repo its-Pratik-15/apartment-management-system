@@ -76,7 +76,8 @@ model User {
   ownedFlats  Flat[]    @relation("FlatOwner")
   tenantFlats Lease[]   @relation("TenantLease")
   bills       Bill[]
-  visitorLogs VisitorLog[]
+  guardVisitorLogs VisitorLog[] @relation("GuardVisitorLogs")
+  hostVisitorLogs  VisitorLog[] @relation("HostVisitorLogs")
   notices     Notice[]
   issues      Issue[]
   
@@ -177,12 +178,15 @@ model VisitorLog {
   // Relationships
   flatId       String
   flat         Flat      @relation(fields: [flatId], references: [id])
-  guardId      String
-  guard        User      @relation(fields: [guardId], references: [id])
+  guardId      String?   // Optional - null when visitor is requested by resident
+  guard        User?     @relation("GuardVisitorLogs", fields: [guardId], references: [id])
+  hostId       String?   // Who requested the visitor (owner/tenant/secretary)
+  host         User?     @relation("HostVisitorLogs", fields: [hostId], references: [id])
   
   // Indexes for better query performance
   @@index([flatId])
   @@index([guardId])
+  @@index([hostId])
   @@index([isApproved])
   @@index([createdAt])
   @@map("visitor_logs")
