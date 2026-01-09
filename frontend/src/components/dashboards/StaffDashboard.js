@@ -10,13 +10,24 @@ const StaffDashboard = () => {
   useEffect(() => {
     const fetchRecentIssues = async () => {
       try {
-        const response = await apiService.issues.getAll({ 
-          limit: 5, 
-          status: 'OPEN,IN_PROGRESS' 
-        });
-        setRecentIssues(response.data.data.issues);
+        // Fetch open and in-progress issues separately, then combine
+        const [openResponse, inProgressResponse] = await Promise.all([
+          apiService.issues.getAll({ limit: 3, status: 'OPEN' }),
+          apiService.issues.getAll({ limit: 3, status: 'IN_PROGRESS' })
+        ]);
+        
+        const openIssues = openResponse.data?.data?.issues || [];
+        const inProgressIssues = inProgressResponse.data?.data?.issues || [];
+        
+        // Combine and sort by creation date, limit to 5
+        const combinedIssues = [...openIssues, ...inProgressIssues]
+          .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+          .slice(0, 5);
+          
+        setRecentIssues(combinedIssues);
       } catch (error) {
         console.error('Error fetching recent issues:', error);
+        setRecentIssues([]);
       } finally {
         setLoading(false);
       }
