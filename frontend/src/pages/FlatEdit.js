@@ -7,13 +7,20 @@ const FlatEdit = () => {
   const navigate = useNavigate();
   const [flat, setFlat] = useState(null);
   const [owners, setOwners] = useState([]);
+  const [tenants, setTenants] = useState([]);
   const [formData, setFormData] = useState({
     flatNumber: '',
     floor: '',
     bedrooms: '',
     bathrooms: '',
     area: '',
-    ownerId: ''
+    ownerId: '',
+    tenantId: '',
+    createLease: false,
+    monthlyRent: '',
+    startDate: '',
+    endDate: '',
+    securityDeposit: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -27,14 +34,25 @@ const FlatEdit = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [flatResponse, ownersResponse] = await Promise.all([
+      const [flatResponse, ownersResponse, tenantsResponse] = await Promise.all([
         apiService.flats.getById(id),
-        apiService.users.getAll({ role: 'OWNER', limit: 100 })
+        apiService.users.getAll({ role: 'OWNER', limit: 100 }),
+        apiService.users.getAll({ role: 'TENANT', limit: 100 })
       ]);
       
       const flatData = flatResponse.data.data.flat;
       setFlat(flatData);
       setOwners(ownersResponse.data.data.users);
+      setTenants(tenantsResponse.data.data.users);
+      
+      // Get current active lease if exists
+      let currentTenant = '';
+      if (flatData.leases && flatData.leases.length > 0) {
+        const activeLease = flatData.leases.find(lease => lease.isActive);
+        if (activeLease) {
+          currentTenant = activeLease.tenantId;
+        }
+      }
       
       setFormData({
         flatNumber: flatData.flatNumber,
@@ -42,7 +60,13 @@ const FlatEdit = () => {
         bedrooms: flatData.bedrooms.toString(),
         bathrooms: flatData.bathrooms.toString(),
         area: flatData.area.toString(),
-        ownerId: flatData.ownerId
+        ownerId: flatData.ownerId,
+        tenantId: currentTenant,
+        createLease: false,
+        monthlyRent: '',
+        startDate: '',
+        endDate: '',
+        securityDeposit: ''
       });
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -76,7 +100,23 @@ const FlatEdit = () => {
       };
 
       await apiService.flats.update(id, updateData);
-      setMessage({ type: 'success', text: 'Flat updated successfully!' });
+
+      // Create lease if tenant is assigned and createLease is checked
+      if (formData.tenantId && formData.createLease) {
+        const leaseData = {
+          flatId: id,
+          tenantId: formData.tenantId,
+          startDate: formData.startDate,
+          endDate: formData.endDate,
+          monthlyRent: parseFloat(formData.monthlyRent),
+          securityDeposit: formData.securityDeposit ? parseFloat(formData.securityDeposit) : null
+        };
+
+        await apiService.leases.create(leaseData);
+        setMessage({ type: 'success', text: 'Flat updated and lease created successfully!' });
+      } else {
+        setMessage({ type: 'success', text: 'Flat updated successfully!' });
+      }
       
       // Redirect after a short delay
       setTimeout(() => {
@@ -267,7 +307,111 @@ const FlatEdit = () => {
                 ))}
               </select>
             </div>
+
+            <div>
+              <label htmlFor="tenantId" className="block text-sm font-medium text-gray-700">
+                Assign Tenant (Optional)
+              </label>
+              <select
+                name="tenantId"
+                id="tenantId"
+                value={formData.tenantId}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="">No tenant assigned</option>
+                {tenants.map((tenant) => (
+                  <option key={tenant.id} value={tenant.id}>
+                    {tenant.firstName} {tenant.lastName} ({tenant.email})
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
+
+          {/* Lease Creation Section */}
+          {formData.tenantId && (
+            <div className="mt-6 border-t border-gray-200 pt-6">
+              <div className="flex items-center mb-4">
+                <input
+                  type="checkbox"
+                  name="createLease"
+                  id="createLease"
+                  checked={formData.createLease}
+                  onChange={(e) => setFormData(prev => ({ ...prev, createLease: e.target.checked }))}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+                <label htmlFor="createLease" className="ml-2 block text-sm font-medium text-gray-700">
+                  Create lease for assigned tenant
+                </label>
+              </div>
+
+              {formData.createLease && (
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                  <div>
+                    <label htmlFor="monthlyRent" className="block text-sm font-medium text-gray-700">
+                      Monthly Rent (₹) *
+                    </label>
+                    <input
+                      type="number"
+                      name="monthlyRent"
+                      id="monthlyRent"
+                      value={formData.monthlyRent}
+                      onChange={handleInputChange}
+                      required={formData.createLease}
+                      min="1"
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="securityDeposit" className="block text-sm font-medium text-gray-700">
+                      Security Deposit (₹)
+                    </label>
+                    <input
+                      type="number"
+                      name="securityDeposit"
+                      id="securityDeposit"
+                      value={formData.securityDeposit}
+                      onChange={handleInputChange}
+                      min="0"
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+                      Lease Start Date *
+                    </label>
+                    <input
+                      type="date"
+                      name="startDate"
+                      id="startDate"
+                      value={formData.startDate}
+                      onChange={handleInputChange}
+                      required={formData.createLease}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
+                      Lease End Date *
+                    </label>
+                    <input
+                      type="date"
+                      name="endDate"
+                      id="endDate"
+                      value={formData.endDate}
+                      onChange={handleInputChange}
+                      required={formData.createLease}
+                      className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="mt-6 flex justify-end space-x-3">
             <Link
