@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import BillForm from '../components/forms/BillForm';
+import { showSuccess, showError, showLoading, dismissToast } from '../components/ErrorMessage';
 
 const NewBill = () => {
   const navigate = useNavigate();
@@ -9,6 +10,8 @@ const NewBill = () => {
   const [success, setSuccess] = useState('');
 
   const handleSubmit = async (formData) => {
+    const loadingToast = showLoading('Creating bill...');
+    
     try {
       setError('');
       setSuccess('');
@@ -16,17 +19,18 @@ const NewBill = () => {
       const response = await apiService.bills.create(formData);
       
       if (response.data.success) {
-        setSuccess('Bill created successfully!');
+        dismissToast(loadingToast);
+        showSuccess('Bill created successfully!');
         setTimeout(() => {
           navigate('/dashboard/bills');
         }, 1500);
       }
     } catch (error) {
       console.error('Error creating bill:', error);
-      setError(
-        error.response?.data?.message || 
-        'Failed to create bill. Please try again.'
-      );
+      dismissToast(loadingToast);
+      const errorMessage = error.response?.data?.message || 'Failed to create bill. Please try again.';
+      setError(errorMessage);
+      showError(errorMessage);
     }
   };
 

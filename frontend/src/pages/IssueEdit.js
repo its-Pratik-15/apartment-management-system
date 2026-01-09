@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { showSuccess, showError, showLoading, dismissToast } from '../components/ErrorMessage';
 
 const IssueEdit = () => {
   const { id } = useParams();
@@ -39,6 +40,7 @@ const IssueEdit = () => {
       });
     } catch (error) {
       console.error('Error fetching issue:', error);
+      showError('Failed to load issue. Redirecting...');
       navigate('/dashboard/issues');
     } finally {
       setLoading(false);
@@ -55,13 +57,18 @@ const IssueEdit = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const loadingToast = showLoading('Updating issue...');
+    
     try {
       setSaving(true);
       await apiService.issues.update(id, formData);
+      dismissToast(loadingToast);
+      showSuccess('Issue updated successfully!');
       navigate('/dashboard/issues');
     } catch (error) {
       console.error('Error updating issue:', error);
-      alert('Failed to update issue. Please try again.');
+      dismissToast(loadingToast);
+      showError('Failed to update issue. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -69,12 +76,17 @@ const IssueEdit = () => {
 
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this issue? This action cannot be undone.')) {
+      const loadingToast = showLoading('Deleting issue...');
+      
       try {
         await apiService.issues.delete(id);
+        dismissToast(loadingToast);
+        showSuccess('Issue deleted successfully!');
         navigate('/dashboard/issues');
       } catch (error) {
         console.error('Error deleting issue:', error);
-        alert('Failed to delete issue. Please try again.');
+        dismissToast(loadingToast);
+        showError('Failed to delete issue. Please try again.');
       }
     }
   };

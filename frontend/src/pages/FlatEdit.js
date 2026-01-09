@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
+import { showSuccess, showError, showLoading, dismissToast } from '../components/ErrorMessage';
 
 const FlatEdit = () => {
   const { id } = useParams();
@@ -88,6 +89,7 @@ const FlatEdit = () => {
     e.preventDefault();
     setSaving(true);
     setMessage({ type: '', text: '' });
+    const loadingToast = showLoading('Updating flat...');
 
     try {
       const updateData = {
@@ -113,8 +115,12 @@ const FlatEdit = () => {
         };
 
         await apiService.leases.create(leaseData);
+        dismissToast(loadingToast);
+        showSuccess('Flat updated and lease created successfully!');
         setMessage({ type: 'success', text: 'Flat updated and lease created successfully!' });
       } else {
+        dismissToast(loadingToast);
+        showSuccess('Flat updated successfully!');
         setMessage({ type: 'success', text: 'Flat updated successfully!' });
       }
       
@@ -124,9 +130,12 @@ const FlatEdit = () => {
       }, 1500);
     } catch (error) {
       console.error('Error updating flat:', error);
+      dismissToast(loadingToast);
+      const errorMessage = error.response?.data?.message || 'Failed to update flat';
+      showError(errorMessage);
       setMessage({ 
         type: 'error', 
-        text: error.response?.data?.message || 'Failed to update flat' 
+        text: errorMessage
       });
     } finally {
       setSaving(false);

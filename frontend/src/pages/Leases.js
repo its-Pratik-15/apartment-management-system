@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
+import { showSuccess, showError, showLoading, dismissToast } from '../components/ErrorMessage';
 
 const Leases = () => {
   const [leases, setLeases] = useState([]);
@@ -57,6 +58,7 @@ const Leases = () => {
       setStats(statistics);
     } catch (error) {
       console.error('Error fetching leases:', error);
+      showError('Failed to load leases. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -80,29 +82,39 @@ const Leases = () => {
   const handleExtendLease = async (leaseId) => {
     const newEndDate = prompt('Enter new end date (YYYY-MM-DD):');
     if (newEndDate && window.confirm('Are you sure you want to extend this lease?')) {
+      const loadingToast = showLoading('Extending lease...');
+      
       try {
         await apiService.leases.update(leaseId, {
           endDate: newEndDate
         });
+        dismissToast(loadingToast);
+        showSuccess('Lease extended successfully!');
         fetchLeases();
       } catch (error) {
         console.error('Error extending lease:', error);
-        alert('Failed to extend lease. Please try again.');
+        dismissToast(loadingToast);
+        showError('Failed to extend lease. Please try again.');
       }
     }
   };
 
   const handleTerminateLease = async (leaseId) => {
     if (window.confirm('Are you sure you want to terminate this lease?')) {
+      const loadingToast = showLoading('Terminating lease...');
+      
       try {
         await apiService.leases.terminate(leaseId, {
           terminationDate: new Date().toISOString().split('T')[0],
           reason: 'Terminated by secretary'
         });
+        dismissToast(loadingToast);
+        showSuccess('Lease terminated successfully!');
         fetchLeases();
       } catch (error) {
         console.error('Error terminating lease:', error);
-        alert('Failed to terminate lease. Please try again.');
+        dismissToast(loadingToast);
+        showError('Failed to terminate lease. Please try again.');
       }
     }
   };
