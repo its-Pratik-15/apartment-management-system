@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
-import { showSuccess, showError, showWarning, showLoading, dismissToast } from '../components/ErrorMessage';
+import { showSuccess, showError, showLoading, dismissToast } from '../components/ErrorMessage';
 
 const Visitors = () => {
   const { user } = useAuth();
@@ -31,23 +31,25 @@ const Visitors = () => {
   }, [searchInput]);
 
   // Fetch visitors when filters change (except search which is handled above)
-  useEffect(() => {
-    fetchVisitors();
-  }, [filters.page, filters.limit, filters.isApproved, filters.search]);
-
-  const fetchVisitors = async () => {
+  const fetchVisitors = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.visitors.getAll(filters);
-      setVisitors(response.data.data.visitors);
-      setPagination(response.data.data.pagination);
+      setVisitors(response.data?.data?.visitors || []);
+      setPagination(response.data?.data?.pagination || {});
     } catch (error) {
       console.error('Error fetching visitors:', error);
       showError('Failed to load visitors. Please try again.');
+      setVisitors([]);
+      setPagination({});
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    fetchVisitors();
+  }, [fetchVisitors]);
 
   const handleFilterChange = (key, value) => {
     if (key === 'search') {
