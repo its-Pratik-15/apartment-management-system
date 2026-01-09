@@ -27,9 +27,9 @@ router.get('/pending', getPendingApprovals);
 // Get visitor log by ID
 router.get('/:id', getVisitorLogById);
 
-// Create visitor entry (Guard only)
+// Create visitor entry (Guard, Owner, Tenant, Secretary)
 router.post('/', [
-  requireRole('GUARD'),
+  requireRole('GUARD', 'OWNER', 'TENANT', 'SECRETARY'),
   body('visitorName')
     .trim()
     .isLength({ min: 2, max: 100 })
@@ -62,9 +62,9 @@ router.post('/', [
   handleValidationErrors
 ], createVisitorEntry);
 
-// Approve/Reject visitor (Owner/Tenant)
+// Approve/Reject visitor (Owner/Tenant for guard-initiated, Guard for resident-initiated)
 router.patch('/:id/status', [
-  requireRole('OWNER', 'TENANT'),
+  requireRole('OWNER', 'TENANT', 'GUARD'),
   body('isApproved')
     .isBoolean()
     .withMessage('isApproved must be true or false'),
