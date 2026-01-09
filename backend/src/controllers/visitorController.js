@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 // Get all visitor logs
 const getAllVisitorLogs = async (req, res) => {
   try {
-    const { page = 1, limit = 10, isApproved, flatId, date } = req.query;
+    const { page = 1, limit = 10, isApproved, flatId, date, search } = req.query;
     const skip = (page - 1) * limit;
 
     const where = {};
@@ -33,6 +33,15 @@ const getAllVisitorLogs = async (req, res) => {
         gte: startDate,
         lt: endDate
       };
+    }
+
+    // Search functionality
+    if (search) {
+      where.OR = [
+        { visitorName: { contains: search, mode: 'insensitive' } },
+        { visitorPhone: { contains: search } },
+        { purpose: { contains: search, mode: 'insensitive' } }
+      ];
     }
 
     // Role-based filtering
@@ -80,7 +89,7 @@ const getAllVisitorLogs = async (req, res) => {
         },
         skip: parseInt(skip),
         take: parseInt(limit),
-        orderBy: { inTime: 'desc' }
+        orderBy: { createdAt: 'desc' }
       }),
       prisma.visitorLog.count({ where })
     ]);

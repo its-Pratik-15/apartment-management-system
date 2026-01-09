@@ -178,6 +178,37 @@ const Flats = () => {
                     <span className="text-gray-900">{flat.owner.firstName} {flat.owner.lastName}</span>
                   </div>
                 )}
+                {/* Display tenant information if flat is tenant-occupied */}
+                {flat.occupancyStatus === 'TENANT_OCCUPIED' && flat.leases && flat.leases.length > 0 && (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Current Tenant:</span>
+                      <span className="text-gray-900">
+                        {flat.leases[0].tenant.firstName} {flat.leases[0].tenant.lastName}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Tenant Contact:</span>
+                      <span className="text-gray-900">{flat.leases[0].tenant.email}</span>
+                    </div>
+                    {flat.leases[0].tenant.phone && (
+                      <div className="flex justify-between text-sm">
+                        <span className="text-gray-500">Tenant Phone:</span>
+                        <span className="text-gray-900">{flat.leases[0].tenant.phone}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Monthly Rent:</span>
+                      <span className="text-gray-900">₹{flat.leases[0].monthlyRent?.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-gray-500">Lease Period:</span>
+                      <span className="text-gray-900">
+                        {new Date(flat.leases[0].startDate).toLocaleDateString()} - {new Date(flat.leases[0].endDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div className="mt-6 flex justify-between">
