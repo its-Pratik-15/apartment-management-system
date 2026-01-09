@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import PasswordRequirements, { validatePassword } from '../components/PasswordRequirements';
+import { showError, showSuccess } from '../components/ErrorMessage';
 
 const Login = () => {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
@@ -52,22 +54,47 @@ const Login = () => {
     setLoading(true);
     setError('');
 
+    // Validate password for registration
+    if (isRegisterMode) {
+      const passwordValidation = validatePassword(formData.password);
+      if (!passwordValidation.isValid) {
+        setError(passwordValidation.message);
+        setLoading(false);
+        return;
+      }
+    }
+
     try {
       let result;
       if (isRegisterMode) {
         result = await register(formData);
+        if (result.success) {
+          showSuccess('Account created successfully! Please sign in.');
+          setIsRegisterMode(false);
+          setFormData({
+            email: formData.email, // Keep email for convenience
+            password: '',
+            firstName: '',
+            lastName: '',
+            phone: '',
+            role: 'OWNER'
+          });
+        } else {
+          setError(result.message);
+        }
       } else {
         result = await login(formData.email, formData.password);
-      }
-      
-      if (result.success) {
-        // Redirect to dashboard or previous page
-        navigate(from, { replace: true });
-      } else {
-        setError(result.message);
+        if (result.success) {
+          showSuccess('Welcome back!');
+          // Redirect to dashboard or previous page
+          navigate(from, { replace: true });
+        } else {
+          setError(result.message);
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred. Please try again.');
+      showError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -208,6 +235,12 @@ const Login = () => {
                 value={formData.password}
                 onChange={handleChange}
               />
+              {isRegisterMode && (
+                <PasswordRequirements 
+                  password={formData.password} 
+                  showRequirements={true}
+                />
+              )}
             </div>
           </div>
 

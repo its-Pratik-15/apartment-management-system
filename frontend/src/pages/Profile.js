@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { apiService } from '../services/api';
+import PasswordRequirements, { validatePassword } from '../components/PasswordRequirements';
+import { showError, showSuccess } from '../components/ErrorMessage';
 
 const Profile = () => {
   const { user, updateUser } = useAuth();
@@ -93,14 +95,19 @@ const Profile = () => {
     setLoading(true);
     setMessage({ type: '', text: '' });
 
-    if (formData.newPassword !== formData.confirmPassword) {
-      setMessage({ type: 'error', text: 'New passwords do not match' });
+    // Validate new password
+    const passwordValidation = validatePassword(formData.newPassword);
+    if (!passwordValidation.isValid) {
+      setMessage({ type: 'error', text: passwordValidation.message });
+      showError(passwordValidation.message);
       setLoading(false);
       return;
     }
 
-    if (formData.newPassword.length < 8) {
-      setMessage({ type: 'error', text: 'New password must be at least 8 characters long' });
+    if (formData.newPassword !== formData.confirmPassword) {
+      const errorMsg = 'New passwords do not match';
+      setMessage({ type: 'error', text: errorMsg });
+      showError(errorMsg);
       setLoading(false);
       return;
     }
@@ -112,7 +119,9 @@ const Profile = () => {
       });
       
       if (response.data.success) {
-        setMessage({ type: 'success', text: 'Password changed successfully!' });
+        const successMsg = 'Password changed successfully!';
+        setMessage({ type: 'success', text: successMsg });
+        showSuccess(successMsg);
         setFormData(prev => ({
           ...prev,
           currentPassword: '',
@@ -121,10 +130,12 @@ const Profile = () => {
         }));
       }
     } catch (error) {
+      const errorMsg = error.response?.data?.message || 'Failed to change password';
       setMessage({ 
         type: 'error', 
-        text: error.response?.data?.message || 'Failed to change password' 
+        text: errorMsg
       });
+      showError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -397,10 +408,12 @@ const Profile = () => {
                   value={formData.newPassword}
                   onChange={handleInputChange}
                   required
-                  minLength={8}
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
-                <p className="mt-1 text-xs text-gray-500">Must be at least 8 characters long</p>
+                <PasswordRequirements 
+                  password={formData.newPassword} 
+                  showRequirements={true}
+                />
               </div>
 
               <div>
