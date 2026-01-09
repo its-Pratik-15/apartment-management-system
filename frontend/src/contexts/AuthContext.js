@@ -47,6 +47,25 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Register function
+  const register = async (userData) => {
+    try {
+      const response = await apiService.post('/auth/register', userData);
+      const { user: newUser, token: userToken } = response.data.data;
+      
+      setUser(newUser);
+      saveToken(userToken);
+      
+      return { success: true, user: newUser };
+    } catch (error) {
+      console.error('Register error:', error);
+      return { 
+        success: false, 
+        message: error.response?.data?.message || 'Registration failed' 
+      };
+    }
+  };
+
   // Logout function
   const logout = () => {
     setUser(null);
@@ -94,6 +113,7 @@ export const AuthProvider = ({ children }) => {
     token,
     loading,
     login,
+    register,
     logout,
     getProfile,
     updateUser,

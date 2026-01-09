@@ -35,17 +35,6 @@ const Header = ({ setSidebarOpen, user }) => {
 
         {/* Right side - User menu */}
         <div className="ml-4 flex items-center md:ml-6">
-          {/* Notifications button */}
-          <button
-            type="button"
-            className="bg-white p-1 rounded-full text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-          >
-            <span className="sr-only">View notifications</span>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM10.5 3.75a6 6 0 0 1 6 6v2.25l2.25 2.25v2.25H2.25V14.25L4.5 12V9.75a6 6 0 0 1 6-6z" />
-            </svg>
-          </button>
-
           {/* Profile dropdown */}
           <div className="ml-3 relative">
             <div>
@@ -79,12 +68,6 @@ const Header = ({ setSidebarOpen, user }) => {
                 >
                   Your Profile
                 </Link>
-                <button
-                  onClick={() => setUserMenuOpen(false)}
-                  className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                >
-                  Settings
-                </button>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
