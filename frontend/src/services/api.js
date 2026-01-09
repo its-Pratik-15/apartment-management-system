@@ -3,7 +3,7 @@ import axios from 'axios';
 // Create axios instance with base configuration
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || 'http://localhost:5001/api',
-  timeout: 60000, // 60 seconds for resume reliability
+  timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -23,40 +23,21 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle errors with retry logic
+// Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
     return response;
   },
-  async (error) => {
-    const originalRequest = error.config;
-    
+  (error) => {
     // Handle 401 errors (unauthorized)
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       window.location.href = '/login';
-      return Promise.reject(error);
-    }
-    
-    // Handle timeout errors with retry for resume reliability
-    if (error.code === 'ECONNABORTED' && !originalRequest._retry) {
-      console.log('Request timeout - Retrying once for resume reliability...');
-      originalRequest._retry = true;
-      originalRequest.timeout = 90000; // Increase timeout for retry
-      
-      try {
-        return await api(originalRequest);
-      } catch (retryError) {
-        console.error('Retry failed - Backend may be sleeping');
-        retryError.message = 'Connection timeout. The server may be starting up, please try again in a moment.';
-        return Promise.reject(retryError);
-      }
     }
     
     // Handle network errors
     if (!error.response) {
       console.error('Network error:', error.message);
-      error.message = 'Unable to connect to server. Please check your connection or try again later.';
     }
     
     return Promise.reject(error);
@@ -105,6 +86,7 @@ export const apiService = {
   flats: {
     getAll: (params) => api.get('/flats', { params }),
     getById: (id) => api.get(`/flats/${id}`),
+    getByOwner: (ownerId) => api.get(`/flats/owner/${ownerId || ''}`),
     create: (flatData) => api.post('/flats', flatData),
     update: (id, flatData) => api.put(`/flats/${id}`, flatData),
     delete: (id) => api.delete(`/flats/${id}`),

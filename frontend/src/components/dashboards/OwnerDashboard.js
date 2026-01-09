@@ -84,6 +84,15 @@ const OwnerDashboard = () => {
         setRecentActivity(activity);
       } catch (error) {
         console.error('Error fetching stats:', error);
+        // Set default stats in case of error
+        setStats({
+          flats: { owned: 0 },
+          bills: { total: 0, overdue: 0, totalAmount: 0, pendingAmount: 0 },
+          leases: { active: 0 },
+          issues: { total: 0, open: 0 },
+          visitors: { pending: 0 }
+        });
+        setRecentActivity([]);
       } finally {
         setLoading(false);
       }
