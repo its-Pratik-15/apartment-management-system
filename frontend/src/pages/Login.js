@@ -88,22 +88,23 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div>
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
-            <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
+    <div className="min-h-screen flex flex-col bg-gray-50">
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          {/* Header */}
+          <div>
+            <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
+              <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+              Apartment Management System
+            </h2>
+            <p className="mt-2 text-center text-sm text-gray-600">
+              {isRegisterMode ? 'Create your account' : 'Sign in to your account'}
+            </p>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Apartment Management System
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            {isRegisterMode ? 'Create your account' : 'Sign in to your account'}
-          </p>
-        </div>
 
         {/* Login/Register Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -288,7 +289,44 @@ const Login = () => {
             </div>
           </div>
         )}
+        </div>
       </div>
+      
+      {/* Footer for login page */}
+      <footer className="bg-gray-900 text-white py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="flex items-center">
+              <div className="h-6 w-6 bg-blue-600 rounded flex items-center justify-center mr-2">
+                <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                </svg>
+              </div>
+              <span className="text-sm font-medium">Apartment Management System</span>
+            </div>
+            
+            <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-gray-300">
+              <span>© {new Date().getFullYear()} All rights reserved.</span>
+              <div className="flex space-x-4">
+                <a href="#" className="hover:text-white transition-colors">Privacy</a>
+                <a href="#" className="hover:text-white transition-colors">Terms</a>
+              </div>
+            </div>
+            
+            <div className="text-sm text-gray-300">
+              Built with ❤️ by{' '}
+              <a 
+                href="https://github.com/its-Pratik-15" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-blue-400 hover:text-blue-300 transition-colors"
+              >
+                Pratik Kumar
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };

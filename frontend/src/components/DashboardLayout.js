@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import Footer from './Footer';
 
 const DashboardLayout = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -31,6 +32,9 @@ const DashboardLayout = ({ children }) => {
               {children}
             </div>
           </div>
+          
+          {/* Footer */}
+          <Footer />
         </main>
       </div>
     </div>

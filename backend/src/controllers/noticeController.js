@@ -93,6 +93,7 @@ const getNoticeById = async (req, res) => {
     // Check if user can view this notice
     const userRole = req.user.role;
     const canView = !notice.targetRoles || 
+                   notice.targetRoles.length === 0 || // Empty array means all roles
                    notice.targetRoles.includes('ALL') || 
                    notice.targetRoles.includes(userRole);
 
@@ -125,7 +126,7 @@ const createNotice = async (req, res) => {
       data: {
         title,
         content,
-        targetRoles: targetRoles ? targetRoles.join(',') : null,
+        targetRoles: targetRoles || [], // PostgreSQL array
         isPinned,
         expiryDate: expiryDate ? new Date(expiryDate) : null,
         authorId: req.user.id
@@ -164,7 +165,7 @@ const updateNotice = async (req, res) => {
     const updateData = {};
     if (title !== undefined) updateData.title = title;
     if (content !== undefined) updateData.content = content;
-    if (targetRoles !== undefined) updateData.targetRoles = targetRoles ? targetRoles.join(',') : null;
+    if (targetRoles !== undefined) updateData.targetRoles = targetRoles || []; // PostgreSQL array
     if (isPinned !== undefined) updateData.isPinned = isPinned;
     if (expiryDate !== undefined) updateData.expiryDate = expiryDate ? new Date(expiryDate) : null;
 
@@ -284,10 +285,11 @@ const getPinnedNotices = async (req, res) => {
     const pinnedNotices = await prisma.notice.findMany({
       where: {
         isPinned: true,
+        isActive: true,
         OR: [
-          { targetRoles: { contains: userRole } },
-          { targetRoles: { contains: 'ALL' } },
-          { targetRoles: null }
+          { targetRoles: { has: userRole } }, // PostgreSQL array contains
+          { targetRoles: { has: 'ALL' } },
+          { targetRoles: { isEmpty: true } } // Empty array means all roles
         ]
       },
       include: {
