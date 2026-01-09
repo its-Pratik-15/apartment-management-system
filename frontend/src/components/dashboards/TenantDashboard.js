@@ -28,7 +28,7 @@ const TenantDashboard = () => {
         ]);
 
         // Calculate bill statistics
-        const bills = billsRes.data.data.bills;
+        const bills = billsRes.data?.data?.bills || [];
         const totalBills = bills.length;
         const overdueBills = bills.filter(bill => bill.status === 'OVERDUE').length;
         const totalAmount = bills.reduce((sum, bill) => sum + bill.amount, 0);
@@ -37,18 +37,18 @@ const TenantDashboard = () => {
           .reduce((sum, bill) => sum + bill.amount, 0);
 
         // Calculate visitor statistics
-        const visitors = visitorsRes.data.data.visitorLogs;
+        const visitors = visitorsRes.data?.data?.visitors || [];
         const pendingVisitors = visitors.filter(v => v.isApproved === null).length;
         const approvedVisitors = visitors.filter(v => v.isApproved === true).length;
         const rejectedVisitors = visitors.filter(v => v.isApproved === false).length;
 
         // Calculate issue statistics
-        const issues = issuesRes.data.data.issues;
+        const issues = issuesRes.data?.data?.issues || [];
         const totalIssues = issues.length;
         const openIssues = issues.filter(issue => issue.status === 'OPEN').length;
 
         // Calculate lease information
-        const leases = leasesRes.data.data.leases;
+        const leases = leasesRes.data?.data?.leases || [];
         let leaseInfo = { monthlyRent: 0, endDate: null, daysRemaining: 0 };
         if (leases.length > 0) {
           const activeLease = leases[0];
@@ -64,9 +64,9 @@ const TenantDashboard = () => {
         }
 
         // Calculate notice statistics
-        const notices = noticesRes.data.data.notices;
+        const notices = noticesRes.data?.data?.notices || [];
         const tenantNotices = notices.filter(notice => 
-          notice.targetRoles.includes('TENANT') && notice.isActive
+          notice.targetRoles?.includes('TENANT') && notice.isActive
         );
         const pinnedNotices = tenantNotices.filter(notice => notice.isPinned).length;
 
@@ -93,21 +93,21 @@ const TenantDashboard = () => {
         ]);
 
         const activity = [
-          ...recentBills.data.data.bills.map(bill => ({
+          ...(recentBills.data?.data?.bills || []).map(bill => ({
             type: 'bill',
             title: `${bill.billType} bill`,
             description: `₹${bill.amount} - ${bill.status}`,
             time: new Date(bill.createdAt).toLocaleDateString(),
             status: bill.status
           })),
-          ...recentIssues.data.data.issues.map(issue => ({
+          ...(recentIssues.data?.data?.issues || []).map(issue => ({
             type: 'issue',
             title: `Issue: ${issue.title}`,
             description: `Status: ${issue.status}`,
             time: new Date(issue.createdAt).toLocaleDateString(),
             status: issue.status
           })),
-          ...recentVisitors.data.data.visitorLogs.slice(0, 2).map(visitor => ({
+          ...(recentVisitors.data?.data?.visitors || []).slice(0, 2).map(visitor => ({
             type: 'visitor',
             title: `Visitor: ${visitor.visitorName}`,
             description: `Status: ${visitor.isApproved === null ? 'Pending' : visitor.isApproved ? 'Approved' : 'Rejected'}`,
