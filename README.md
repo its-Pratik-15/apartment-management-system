@@ -85,20 +85,33 @@
 
 ### Dashboard Views
 ![Secretary Dashboard](./docs/screenshots/secretary-dashboard.png)
-*Secretary Dashboard - Complete system overview with analytics*
+*Secretary Dashboard - Complete system overview with analytics and quick actions*
 
-![Owner Dashboard](./docs/screenshots/owner-dashboard.png)
-*Owner Dashboard - Property and financial management*
+![User Management](./docs/screenshots/user-management.png)
+*User Management - Role-based user administration with filtering*
 
 ### Core Features
+![Notice Management](./docs/screenshots/notice-management.png)
+*Notice Management - Targeted announcements with role-based visibility*
+
+![Flat Management](./docs/screenshots/flat-management.png)
+*Flat Management - Property overview with occupancy status and professional footer*
+
 ![Visitor Management](./docs/screenshots/visitor-management.png)
-*Visitor Management - Entry/exit tracking with approval workflow*
+*Visitor Management - Entry/exit tracking with approval workflow and debounced search*
 
 ![Bill Management](./docs/screenshots/bill-management.png)
 *Smart Billing System - Automated assignment and payment tracking*
 
 ![Issue Tracking](./docs/screenshots/issue-tracking.png)
 *Issue Management - Complete lifecycle from report to resolution*
+
+### Authentication & UI
+![Login Page](./docs/screenshots/login-page.png)
+*Login & Registration - Secure authentication with demo credentials*
+
+![Mobile Responsive](./docs/screenshots/mobile-responsive.png)
+*Mobile Responsive Design - Optimized for all device sizes*
 
 ## 🚀 Quick Start
 
@@ -337,7 +350,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Pratik Kumar**
 - GitHub: [@its-Pratik-15](https://github.com/its-Pratik-15)
-- LinkedIn: [Pratik Kumar](https://linkedin.com/in/pratik-kumar)
+- LinkedIn: [Pratik Kumar Pan](https://linkedin.com/in/pratik-kumar)
 
 ---
 

@@ -1,52 +1,77 @@
 # Screenshots
 
-This folder contains screenshots of the Apartment Management System for documentation purposes.
+This directory contains screenshots of the Apartment Management System application.
 
-## Required Screenshots
+## Current Screenshots
 
-### Dashboard Views
-- `secretary-dashboard.png` - Secretary Dashboard with analytics
-- `owner-dashboard.png` - Owner Dashboard with property management
-- `tenant-dashboard.png` - Tenant Dashboard with bills and visitors
-- `staff-dashboard.png` - Staff Dashboard with issue management
-- `guard-dashboard.png` - Guard Dashboard with visitor controls
+### ✅ Provided Screenshots
+1. **secretary-dashboard.png** - Secretary Dashboard with analytics and quick actions
+2. **user-management.png** - User management interface with role filtering
+3. **notice-management.png** - Notice board with role-based targeting
+4. **flat-management.png** - Flat management with professional footer
 
-### Core Features
-- `visitor-management.png` - Visitor entry/exit tracking
-- `bill-management.png` - Smart billing system
-- `issue-tracking.png` - Issue management workflow
-- `user-management.png` - User administration (Secretary view)
-- `flat-management.png` - Property management interface
+### 📋 Required Screenshots
 
-### Authentication & Navigation
-- `login-page.png` - Login/Registration page
-- `navigation.png` - Main navigation and menu
-- `mobile-responsive.png` - Mobile view demonstration
+#### Dashboard Views
+5. **owner-dashboard.png** - Owner dashboard showing property and financial info
+6. **tenant-dashboard.png** - Tenant dashboard with bills and visitor requests
+7. **staff-dashboard.png** - Staff dashboard with issue assignments
+8. **guard-dashboard.png** - Guard dashboard with visitor management
 
-### Forms & Interactions
-- `create-bill.png` - Bill creation form
-- `report-issue.png` - Issue reporting form
-- `visitor-approval.png` - Visitor approval workflow
+#### Core Features
+9. **visitor-management.png** - Visitor list with search and approval actions
+10. **bill-management.png** - Bills page with smart assignment and payment tracking
+11. **issue-tracking.png** - Issues page with priority and status management
+12. **lease-management.png** - Lease management with expiration tracking
+
+#### Forms & Modals
+13. **create-notice-form.png** - Notice creation form with role targeting
+14. **create-bill-form.png** - Bill creation with automatic assignment rules
+15. **visitor-request-form.png** - Visitor registration/request form
+16. **issue-report-form.png** - Issue reporting form with categories
+
+#### Authentication & UI
+17. **login-page.png** - Login page with demo credentials and registration
+18. **mobile-responsive.png** - Mobile view showing responsive design
+19. **profile-page.png** - User profile management page
+
+#### Advanced Features
+20. **search-functionality.png** - Debounced search in action (visitors page)
+21. **role-based-access.png** - Different views based on user roles
+22. **notification-system.png** - Real-time notifications and alerts
 
 ## Screenshot Guidelines
 
-1. **Resolution**: Minimum 1200px width for desktop views
-2. **Mobile**: Include mobile screenshots at 375px width
-3. **Content**: Use demo data, avoid real personal information
-4. **Quality**: High-quality PNG format
-5. **Annotations**: Add callouts for key features when helpful
+### Resolution & Quality
+- **Desktop**: 1920x1080 or 1440x900
+- **Mobile**: 375x812 (iPhone X) or 360x640 (Android)
+- **Format**: PNG for UI screenshots
+- **Quality**: High resolution, clear text
 
-## Taking Screenshots
+### Content Guidelines
+- Use realistic demo data (not Lorem ipsum)
+- Show populated lists (3-5 items minimum)
+- Include various states (pending, approved, etc.)
+- Demonstrate key features and interactions
+- Show different user roles when applicable
 
-1. Start the application with seeded data
-2. Login with different roles to capture various dashboards
-3. Navigate through key workflows
-4. Capture both desktop and mobile views
-5. Ensure UI is in a clean, professional state
+### Naming Convention
+- Use kebab-case: `feature-name.png`
+- Be descriptive: `visitor-management-with-search.png`
+- Include context: `secretary-dashboard-overview.png`
 
-## File Naming Convention
+## How to Capture
 
-- Use kebab-case for filenames
-- Include the feature/page name
-- Add `-mobile` suffix for mobile versions
-- Example: `secretary-dashboard.png`, `visitor-management-mobile.png`
+1. **Login with different roles** to show role-based features
+2. **Populate with sample data** for realistic screenshots
+3. **Show interactive states** (hover, active, selected)
+4. **Capture mobile views** using browser dev tools
+5. **Include loading states** and empty states where relevant
+
+## Usage in Documentation
+
+Screenshots are referenced in:
+- `README.md` - Main project documentation
+- GitHub repository description
+- Deployment documentation
+- User guides and tutorials

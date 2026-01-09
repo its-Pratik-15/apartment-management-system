@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 // Get all flats
 const getAllFlats = async (req, res) => {
   try {
-    const { page = 1, limit = 10, floor, occupancyStatus, search } = req.query;
+    const { page = 1, limit = 10, floor, occupancyStatus, search, ownerId } = req.query;
     const skip = (page - 1) * limit;
 
     const where = {};
@@ -20,6 +20,10 @@ const getAllFlats = async (req, res) => {
 
     if (search) {
       where.flatNumber = { contains: search };
+    }
+
+    if (ownerId) {
+      where.ownerId = ownerId;
     }
 
     const [flats, total] = await Promise.all([
