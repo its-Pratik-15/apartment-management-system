@@ -6,6 +6,12 @@ const Leases = () => {
   const [leases, setLeases] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({});
+  const [stats, setStats] = useState({
+    total: 0,
+    active: 0,
+    expiring: 0,
+    expired: 0
+  });
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -20,8 +26,35 @@ const Leases = () => {
     try {
       setLoading(true);
       const response = await apiService.leases.getAll(filters);
-      setLeases(response.data.data.leases);
+      const leasesData = response.data.data.leases;
+      setLeases(leasesData);
       setPagination(response.data.data.pagination);
+
+      // Calculate statistics
+      const now = new Date();
+      const statistics = {
+        total: leasesData.length,
+        active: 0,
+        expiring: 0,
+        expired: 0
+      };
+
+      leasesData.forEach(lease => {
+        const endDate = new Date(lease.endDate);
+        const startDate = new Date(lease.startDate);
+        const daysUntilExpiry = Math.ceil((endDate - now) / (1000 * 60 * 60 * 24));
+
+        if (lease.isActive && now >= startDate && now <= endDate) {
+          statistics.active++;
+          if (daysUntilExpiry <= 30) {
+            statistics.expiring++;
+          }
+        } else if (now > endDate) {
+          statistics.expired++;
+        }
+      });
+
+      setStats(statistics);
     } catch (error) {
       console.error('Error fetching leases:', error);
     } finally {
@@ -42,6 +75,21 @@ const Leases = () => {
       ...prev,
       page: newPage
     }));
+  };
+
+  const handleExtendLease = async (leaseId) => {
+    const newEndDate = prompt('Enter new end date (YYYY-MM-DD):');
+    if (newEndDate && window.confirm('Are you sure you want to extend this lease?')) {
+      try {
+        await apiService.leases.update(leaseId, {
+          endDate: newEndDate
+        });
+        fetchLeases();
+      } catch (error) {
+        console.error('Error extending lease:', error);
+        alert('Failed to extend lease. Please try again.');
+      }
+    }
   };
 
   const handleTerminateLease = async (leaseId) => {
@@ -107,6 +155,90 @@ const Leases = () => {
             </svg>
             Create Lease
           </Link>
+        </div>
+      </div>
+
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 mb-6">
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 bg-blue-500 rounded-md flex items-center justify-center">
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Total Leases</dt>
+                  <dd className="text-lg font-medium text-gray-900">{stats.total}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 bg-green-500 rounded-md flex items-center justify-center">
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Active Leases</dt>
+                  <dd className="text-lg font-medium text-gray-900">{stats.active}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 bg-orange-500 rounded-md flex items-center justify-center">
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Expiring Soon</dt>
+                  <dd className="text-lg font-medium text-gray-900">{stats.expiring}</dd>
+                  <dd className="text-sm text-gray-500">Within 30 days</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="p-5">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <div className="h-8 w-8 bg-red-500 rounded-md flex items-center justify-center">
+                  <svg className="h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="ml-5 w-0 flex-1">
+                <dl>
+                  <dt className="text-sm font-medium text-gray-500 truncate">Expired</dt>
+                  <dd className="text-lg font-medium text-gray-900">{stats.expired}</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -192,12 +324,20 @@ const Leases = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       {!lease.terminationDate && leaseStatus.status === 'ACTIVE' && (
-                        <button
-                          onClick={() => handleTerminateLease(lease.id)}
-                          className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                        >
-                          Terminate
-                        </button>
+                        <>
+                          <button
+                            onClick={() => handleExtendLease(lease.id)}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
+                          >
+                            Extend
+                          </button>
+                          <button
+                            onClick={() => handleTerminateLease(lease.id)}
+                            className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            Terminate
+                          </button>
+                        </>
                       )}
                       <Link
                         to={`/dashboard/leases/${lease.id}`}
