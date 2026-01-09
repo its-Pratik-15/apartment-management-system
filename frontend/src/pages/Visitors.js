@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -14,10 +14,25 @@ const Visitors = () => {
     isApproved: '',
     search: ''
   });
+  const [searchInput, setSearchInput] = useState('');
 
+  // Debounced search effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setFilters(prev => ({
+        ...prev,
+        search: searchInput,
+        page: 1
+      }));
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timeoutId);
+  }, [searchInput]);
+
+  // Fetch visitors when filters change (except search which is handled above)
   useEffect(() => {
     fetchVisitors();
-  }, [filters]);
+  }, [filters.page, filters.limit, filters.isApproved, filters.search]);
 
   const fetchVisitors = async () => {
     try {
@@ -33,17 +48,30 @@ const Visitors = () => {
   };
 
   const handleFilterChange = (key, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [key]: value,
-      page: 1
-    }));
+    if (key === 'search') {
+      setSearchInput(value);
+    } else {
+      setFilters(prev => ({
+        ...prev,
+        [key]: value,
+        page: 1
+      }));
+    }
   };
 
   const handlePageChange = (newPage) => {
     setFilters(prev => ({
       ...prev,
       page: newPage
+    }));
+  };
+
+  const clearSearch = () => {
+    setSearchInput('');
+    setFilters(prev => ({
+      ...prev,
+      search: '',
+      page: 1
     }));
   };
 
@@ -161,15 +189,15 @@ const Visitors = () => {
                 </div>
                 <input
                   type="text"
-                  value={filters.search}
+                  value={searchInput}
                   onChange={(e) => handleFilterChange('search', e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   placeholder="Search by name, phone, or purpose..."
                 />
-                {filters.search && (
+                {searchInput && (
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center">
                     <button
-                      onClick={() => handleFilterChange('search', '')}
+                      onClick={clearSearch}
                       className="text-gray-400 hover:text-gray-600"
                     >
                       <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -214,14 +242,14 @@ const Visitors = () => {
           </div>
 
           {/* Active Filters Display */}
-          {(filters.search || filters.isApproved) && (
+          {(searchInput || filters.isApproved) && (
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <span className="text-sm font-medium text-gray-700">Active filters:</span>
-              {filters.search && (
+              {searchInput && (
                 <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                  Search: "{filters.search}"
+                  Search: "{searchInput}"
                   <button
-                    onClick={() => handleFilterChange('search', '')}
+                    onClick={clearSearch}
                     className="ml-1 text-blue-600 hover:text-blue-800"
                   >
                     <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -244,7 +272,10 @@ const Visitors = () => {
                 </span>
               )}
               <button
-                onClick={() => setFilters(prev => ({ ...prev, search: '', isApproved: '', page: 1 }))}
+                onClick={() => {
+                  setSearchInput('');
+                  setFilters(prev => ({ ...prev, search: '', isApproved: '', page: 1 }));
+                }}
                 className="text-sm text-gray-500 hover:text-gray-700 underline"
               >
                 Clear all
