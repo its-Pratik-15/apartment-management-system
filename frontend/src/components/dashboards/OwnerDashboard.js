@@ -27,62 +27,94 @@ const OwnerDashboard = () => {
           apiService.leases.getAll({ limit: 100 }) // Get all to filter by owned flats
         ]);
 
-        // Get owned flat IDs
-        const ownedFlatIds = flatsRes.data.data.flats.map(flat => flat.id);
+        // Get owned flat IDs with defensive handling
+        const ownedFlats = flatsRes.data?.data?.flats || [];
+        const ownedFlatIds = ownedFlats.map(flat => flat.id);
         
-        // Filter leases for owned flats
-        const ownedLeases = leasesRes.data.data.leases.filter(lease => 
+        // Filter leases for owned flats with defensive handling
+        const allLeases = leasesRes.data?.data?.leases || [];
+        const ownedLeases = allLeases.filter(lease => 
           ownedFlatIds.includes(lease.flatId) && lease.isActive
         );
 
-        // Get bills summary for owned flats
-        const billsSummary = await apiService.bills.getAll({ 
-          flatId: ownedFlatIds.join(','), 
-          limit: 100 
-        });
+        // Get bills summary for owned flats only if there are owned flats
+        let totalBills = 0;
+        let overdueBills = 0;
+        let totalAmount = 0;
+        let pendingAmount = 0;
 
-        const totalBills = billsSummary.data.data.bills.length;
-        const overdueBills = billsSummary.data.data.bills.filter(bill => bill.status === 'OVERDUE').length;
-        const totalAmount = billsSummary.data.data.bills.reduce((sum, bill) => sum + bill.amount, 0);
-        const pendingAmount = billsSummary.data.data.bills
-          .filter(bill => bill.status !== 'PAID')
-          .reduce((sum, bill) => sum + bill.amount, 0);
+        if (ownedFlatIds.length > 0) {
+          try {
+            const billsSummary = await apiService.bills.getAll({ 
+              flatId: ownedFlatIds.join(','), 
+              limit: 100 
+            });
+
+            const bills = billsSummary.data?.data?.bills || [];
+            totalBills = bills.length;
+            overdueBills = bills.filter(bill => bill.status === 'OVERDUE').length;
+            totalAmount = bills.reduce((sum, bill) => sum + (bill.amount || 0), 0);
+            pendingAmount = bills
+              .filter(bill => bill.status !== 'PAID')
+              .reduce((sum, bill) => sum + (bill.amount || 0), 0);
+          } catch (billsError) {
+            console.warn('Error fetching bills summary:', billsError);
+            // Continue with default values
+          }
+        }
+
+        // Handle issues data with defensive checks
+        const issuesData = issuesRes.data?.data || {};
+        const issuesList = issuesData.issues || [];
+        const issuesPagination = issuesData.pagination || {};
+
+        // Handle visitors data with defensive checks
+        const visitorsData = visitorsRes.data?.data || {};
 
         setStats({
-          flats: { owned: flatsRes.data.data.flats.length },
+          flats: { owned: ownedFlats.length },
           bills: { total: totalBills, overdue: overdueBills, totalAmount, pendingAmount },
           leases: { active: ownedLeases.length },
           issues: { 
-            total: issuesRes.data.data.pagination.total,
-            open: issuesRes.data.data.issues.filter(issue => issue.status === 'OPEN').length
+            total: issuesPagination.total || issuesList.length,
+            open: issuesList.filter(issue => issue.status === 'OPEN').length
           },
-          visitors: { pending: visitorsRes.data.data.count }
+          visitors: { pending: visitorsData.count || 0 }
         });
 
-        // Fetch recent activity
-        const [recentBills, recentIssues] = await Promise.all([
-          apiService.bills.getAll({ userId: user.id, limit: 3 }),
-          apiService.issues.getAll({ reporterId: user.id, limit: 3 })
-        ]);
+        // Fetch recent activity with defensive handling
+        try {
+          const [recentBills, recentIssues] = await Promise.all([
+            apiService.bills.getAll({ userId: user.id, limit: 3 }),
+            apiService.issues.getAll({ reporterId: user.id, limit: 3 })
+          ]);
 
-        const activity = [
-          ...recentBills.data.data.bills.map(bill => ({
-            type: 'bill',
-            title: `${bill.billType} bill`,
-            description: `₹${bill.amount} - ${bill.status}`,
-            time: new Date(bill.createdAt).toLocaleDateString(),
-            status: bill.status
-          })),
-          ...recentIssues.data.data.issues.map(issue => ({
-            type: 'issue',
-            title: `Issue: ${issue.title}`,
-            description: `Status: ${issue.status}`,
-            time: new Date(issue.createdAt).toLocaleDateString(),
-            status: issue.status
-          }))
-        ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
+          const recentBillsList = recentBills.data?.data?.bills || [];
+          const recentIssuesList = recentIssues.data?.data?.issues || [];
 
-        setRecentActivity(activity);
+          const activity = [
+            ...recentBillsList.map(bill => ({
+              type: 'bill',
+              title: `${bill.billType || 'Bill'}`,
+              description: `₹${bill.amount || 0} - ${bill.status || 'Unknown'}`,
+              time: new Date(bill.createdAt).toLocaleDateString(),
+              status: bill.status
+            })),
+            ...recentIssuesList.map(issue => ({
+              type: 'issue',
+              title: `Issue: ${issue.title || 'Untitled'}`,
+              description: `Status: ${issue.status || 'Unknown'}`,
+              time: new Date(issue.createdAt).toLocaleDateString(),
+              status: issue.status
+            }))
+          ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 5);
+
+          setRecentActivity(activity);
+        } catch (activityError) {
+          console.warn('Error fetching recent activity:', activityError);
+          setRecentActivity([]);
+        }
+
       } catch (error) {
         console.error('Error fetching stats:', error);
         showError('Failed to load dashboard data. Please refresh the page.');
