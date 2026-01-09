@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { showError } from '../components/ErrorMessage';
 
 const Issues = () => {
   const { user } = useAuth();
@@ -27,6 +28,7 @@ const Issues = () => {
       setPagination(response.data.data.pagination);
     } catch (error) {
       console.error('Error fetching issues:', error);
+      showError('Failed to load issues. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
+import { showError } from '../components/ErrorMessage';
 
 const Users = () => {
   const [users, setUsers] = useState([]);
@@ -24,6 +25,7 @@ const Users = () => {
       setPagination(response.data.data.pagination);
     } catch (error) {
       console.error('Error fetching users:', error);
+      showError('Failed to load users. Please try again.');
     } finally {
       setLoading(false);
     }

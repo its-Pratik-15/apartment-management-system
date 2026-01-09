@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
+import { showError } from '../components/ErrorMessage';
 
 const Flats = () => {
   const [flats, setFlats] = useState([]);
@@ -24,6 +25,7 @@ const Flats = () => {
       setPagination(response.data.data.pagination);
     } catch (error) {
       console.error('Error fetching flats:', error);
+      showError('Failed to load flats. Please try again.');
     } finally {
       setLoading(false);
     }
