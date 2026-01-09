@@ -8,7 +8,7 @@ const {
   getFlatsByOwner
 } = require('../controllers/flatController');
 const { authenticateToken } = require('../middlewares/auth');
-const { secretaryOnly, ownerOrSecretary } = require('../middlewares/rbac');
+const { secretaryOnly, ownerOrSecretary, requireRole } = require('../middlewares/rbac');
 const {
   validateId,
   validateFlatNumber,
@@ -22,9 +22,9 @@ const router = express.Router();
 // All routes require authentication
 router.use(authenticateToken);
 
-// Get all flats (Secretary only)
+// Get all flats (Secretary can see all, Owner/Tenant see their own)
 router.get('/', [
-  secretaryOnly,
+  requireRole('OWNER', 'TENANT', 'SECRETARY'),
   ...validatePagination(),
   handleValidationErrors
 ], getAllFlats);
