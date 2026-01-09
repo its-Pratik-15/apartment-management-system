@@ -138,7 +138,40 @@ const getProfile = async (req, res) => {
         role: true,
         isActive: true,
         createdAt: true,
-        updatedAt: true
+        updatedAt: true,
+        ownedFlats: {
+          select: {
+            id: true,
+            flatNumber: true,
+            floor: true,
+            bedrooms: true,
+            bathrooms: true,
+            area: true,
+            occupancyStatus: true
+          }
+        },
+        tenantFlats: {
+          where: {
+            isActive: true
+          },
+          select: {
+            id: true,
+            startDate: true,
+            endDate: true,
+            monthlyRent: true,
+            flat: {
+              select: {
+                id: true,
+                flatNumber: true,
+                floor: true,
+                bedrooms: true,
+                bathrooms: true,
+                area: true,
+                occupancyStatus: true
+              }
+            }
+          }
+        }
       }
     });
 

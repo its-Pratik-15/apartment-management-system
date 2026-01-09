@@ -6,13 +6,13 @@ const prisma = new PrismaClient();
 // Background job to check and expire leases
 const runLeaseExpiryJob = async () => {
   try {
-    console.log('🔄 Running lease expiry job...');
+    console.log('Running lease expiry job...');
     
     // Auto-expire leases that have passed their end date
     const expiredCount = await autoExpireLeases();
     
     if (expiredCount > 0) {
-      console.log(`✅ Expired ${expiredCount} leases`);
+      console.log(`Expired ${expiredCount} leases`);
     }
     
     // Get leases expiring in the next 30 days for alerts
@@ -51,13 +51,13 @@ const runLeaseExpiryJob = async () => {
     });
     
     if (expiringLeases.length > 0) {
-      console.log(`⚠️  ${expiringLeases.length} leases expiring in the next 30 days`);
+      console.log(`${expiringLeases.length} leases expiring in the next 30 days`);
       
       // Here you could add email notifications, push notifications, etc.
       // For now, we'll just log the alerts
       expiringLeases.forEach(lease => {
         const daysUntilExpiry = Math.ceil((lease.endDate - new Date()) / (1000 * 60 * 60 * 24));
-        console.log(`📅 Lease for ${lease.flat.flatNumber} expires in ${daysUntilExpiry} days`);
+        console.log(`Lease for ${lease.flat.flatNumber} expires in ${daysUntilExpiry} days`);
       });
     }
     
@@ -67,7 +67,7 @@ const runLeaseExpiryJob = async () => {
       expiringLeases
     };
   } catch (error) {
-    console.error('❌ Lease expiry job error:', error);
+    console.error('Lease expiry job error:', error);
     throw error;
   }
 };
@@ -190,7 +190,7 @@ const getLeaseAlerts = async () => {
 
 // Start the lease expiry job (runs every hour)
 const startLeaseExpiryJob = () => {
-  console.log('🚀 Starting lease expiry background job...');
+  console.log('Starting lease expiry background job...');
   
   // Run immediately
   runLeaseExpiryJob().catch(console.error);
@@ -207,7 +207,7 @@ const startLeaseExpiryJob = () => {
 const stopLeaseExpiryJob = (intervalId) => {
   if (intervalId) {
     clearInterval(intervalId);
-    console.log('🛑 Stopped lease expiry background job');
+    console.log('Stopped lease expiry background job');
   }
 };
 
