@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { apiService } from '../services/api';
+import { showSuccess, showError, showWarning } from '../components/ErrorMessage';
 
 const AuthContext = createContext();
 
@@ -40,9 +41,11 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: userData };
     } catch (error) {
       console.error('Login error:', error);
+      const errorMessage = error.response?.data?.message || 'Login failed';
+      showError(errorMessage);
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Login failed' 
+        message: errorMessage
       };
     }
   };
@@ -59,9 +62,11 @@ export const AuthProvider = ({ children }) => {
       return { success: true, user: newUser };
     } catch (error) {
       console.error('Register error:', error);
+      const errorMessage = error.response?.data?.message || 'Registration failed';
+      showError(errorMessage);
       return { 
         success: false, 
-        message: error.response?.data?.message || 'Registration failed' 
+        message: errorMessage
       };
     }
   };
@@ -70,6 +75,7 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     setUser(null);
     saveToken(null);
+    showSuccess('Logged out successfully!');
   };
 
   // Get user profile
@@ -80,6 +86,11 @@ export const AuthProvider = ({ children }) => {
       return response.data.data.user;
     } catch (error) {
       console.error('Get profile error:', error);
+      if (error.response?.status === 401) {
+        showWarning('Your session has expired. Please log in again.');
+      } else {
+        showError('Failed to load profile information.');
+      }
       logout(); // Clear invalid token
       throw error;
     }
