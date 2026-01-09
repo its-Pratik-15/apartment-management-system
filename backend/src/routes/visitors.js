@@ -8,6 +8,7 @@ const {
   getVisitorLogById,
   createVisitorEntry,
   updateVisitorStatus,
+  recordVisitorCheckIn,
   recordVisitorExit,
   getPendingApprovals
 } = require('../controllers/visitorController');
@@ -64,16 +65,22 @@ router.post('/', [
 // Approve/Reject visitor (Owner/Tenant)
 router.patch('/:id/status', [
   requireRole('OWNER', 'TENANT'),
-  body('status')
-    .isIn(['APPROVED', 'REJECTED'])
-    .withMessage('Status must be APPROVED or REJECTED'),
-  body('remarks')
+  body('isApproved')
+    .isBoolean()
+    .withMessage('isApproved must be true or false'),
+  body('rejectionReason')
     .optional()
     .trim()
     .isLength({ max: 500 })
-    .withMessage('Remarks must be less than 500 characters'),
+    .withMessage('Rejection reason must be less than 500 characters'),
   handleValidationErrors
 ], updateVisitorStatus);
+
+// Record visitor check-in (Guard only)
+router.patch('/:id/checkin', [
+  requireRole('GUARD'),
+  handleValidationErrors
+], recordVisitorCheckIn);
 
 // Record visitor exit (Guard only)
 router.patch('/:id/exit', [

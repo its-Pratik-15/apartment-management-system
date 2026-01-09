@@ -42,13 +42,6 @@ const getAllIssues = async (req, res) => {
               lastName: true,
               role: true
             }
-          },
-          assignedTo: {
-            select: {
-              firstName: true,
-              lastName: true,
-              role: true
-            }
           }
         },
         skip: parseInt(skip),
@@ -91,14 +84,6 @@ const getIssueById = async (req, res) => {
       where: { id },
       include: {
         reporter: {
-          select: {
-            firstName: true,
-            lastName: true,
-            role: true,
-            email: true
-          }
-        },
-        assignedTo: {
           select: {
             firstName: true,
             lastName: true,
@@ -181,7 +166,7 @@ const createIssue = async (req, res) => {
 const updateIssue = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, category, priority, status, assignedToId, resolution } = req.body;
+    const { title, description, category, priority, status, resolution } = req.body;
 
     const existingIssue = await prisma.issue.findUnique({
       where: { id }
@@ -221,7 +206,6 @@ const updateIssue = async (req, res) => {
       if (category !== undefined) updateData.category = category;
       if (priority !== undefined) updateData.priority = priority;
       if (status !== undefined) updateData.status = status;
-      if (assignedToId !== undefined) updateData.assignedToId = assignedToId;
       if (resolution !== undefined) updateData.resolution = resolution;
       
       // Set resolved date if status is being set to RESOLVED
@@ -235,13 +219,6 @@ const updateIssue = async (req, res) => {
       data: updateData,
       include: {
         reporter: {
-          select: {
-            firstName: true,
-            lastName: true,
-            role: true
-          }
-        },
-        assignedTo: {
           select: {
             firstName: true,
             lastName: true,
@@ -309,62 +286,15 @@ const deleteIssue = async (req, res) => {
   }
 };
 
-// Assign issue to staff (Secretary only)
+// Assign issue to staff (Secretary only) - DISABLED: assignedTo field not in schema
 const assignIssue = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { assignedToId } = req.body;
-
-    // Verify the assigned user is staff
-    const assignedUser = await prisma.user.findUnique({
-      where: { id: assignedToId },
-      select: { role: true, firstName: true, lastName: true }
-    });
-
-    if (!assignedUser || assignedUser.role !== 'STAFF') {
-      return res.status(400).json({
-        success: false,
-        message: 'Can only assign issues to staff members'
-      });
-    }
-
-    const issue = await prisma.issue.update({
-      where: { id },
-      data: {
-        assignedToId,
-        status: 'IN_PROGRESS'
-      },
-      include: {
-        reporter: {
-          select: {
-            firstName: true,
-            lastName: true,
-            role: true
-          }
-        },
-        assignedTo: {
-          select: {
-            firstName: true,
-            lastName: true,
-            role: true
-          }
-        }
-      }
-    });
-
-    res.json({
-      success: true,
-      message: 'Issue assigned successfully',
-      data: { issue }
+    return res.status(400).json({
+      success: false,
+      message: 'Issue assignment feature not available - assignedTo field not implemented in schema'
     });
   } catch (error) {
     console.error('Assign issue error:', error);
-    if (error.code === 'P2025') {
-      return res.status(404).json({
-        success: false,
-        message: 'Issue not found'
-      });
-    }
     res.status(500).json({
       success: false,
       message: 'Failed to assign issue'

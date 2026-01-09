@@ -5,13 +5,19 @@ const prisma = new PrismaClient();
 // Get all visitor logs
 const getAllVisitorLogs = async (req, res) => {
   try {
-    const { page = 1, limit = 10, status, flatId, date } = req.query;
+    const { page = 1, limit = 10, isApproved, flatId, date } = req.query;
     const skip = (page - 1) * limit;
 
     const where = {};
     
-    if (status) {
-      where.status = status;
+    if (isApproved !== undefined) {
+      if (isApproved === 'true') {
+        where.isApproved = true;
+      } else if (isApproved === 'false') {
+        where.isApproved = false;
+      } else if (isApproved === 'null' || isApproved === 'pending') {
+        where.isApproved = null;
+      }
     }
 
     if (flatId) {
@@ -23,7 +29,7 @@ const getAllVisitorLogs = async (req, res) => {
       const endDate = new Date(date);
       endDate.setDate(endDate.getDate() + 1);
       
-      where.entryTime = {
+      where.inTime = {
         gte: startDate,
         lt: endDate
       };
@@ -65,17 +71,16 @@ const getAllVisitorLogs = async (req, res) => {
               }
             }
           },
-          approvedBy: {
+          guard: {
             select: {
               firstName: true,
-              lastName: true,
-              role: true
+              lastName: true
             }
           }
         },
         skip: parseInt(skip),
         take: parseInt(limit),
-        orderBy: { entryTime: 'desc' }
+        orderBy: { inTime: 'desc' }
       }),
       prisma.visitorLog.count({ where })
     ]);
@@ -83,7 +88,7 @@ const getAllVisitorLogs = async (req, res) => {
     res.json({
       success: true,
       data: {
-        visitorLogs,
+        visitors: visitorLogs,
         pagination: {
           page: parseInt(page),
           limit: parseInt(limit),
@@ -120,7 +125,7 @@ const getVisitorLogById = async (req, res) => {
             }
           }
         },
-        approvedBy: {
+        guard: {
           select: {
             firstName: true,
             lastName: true,
@@ -164,7 +169,7 @@ const getVisitorLogById = async (req, res) => {
 
     res.json({
       success: true,
-      data: { visitorLog }
+      data: { visitor: visitorLog }
     });
   } catch (error) {
     console.error('Get visitor log error:', error);
@@ -194,11 +199,8 @@ const createVisitorEntry = async (req, res) => {
         visitorPhone,
         flatId,
         purpose,
-        vehicleNumber,
-        idProofType,
-        idProofNumber,
-        entryTime: new Date(),
-        status: 'PENDING'
+        guardId: req.user.id,
+        isApproved: null
       },
       include: {
         flat: {
@@ -219,7 +221,7 @@ const createVisitorEntry = async (req, res) => {
     res.status(201).json({
       success: true,
       message: 'Visitor entry created successfully',
-      data: { visitorLog }
+      data: { visitor: visitorLog }
     });
   } catch (error) {
     console.error('Create visitor entry error:', error);
@@ -234,13 +236,13 @@ const createVisitorEntry = async (req, res) => {
 const updateVisitorStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status, remarks } = req.body;
+    const { isApproved, rejectionReason } = req.body;
 
-    // Validate status
-    if (!['APPROVED', 'REJECTED'].includes(status)) {
+    // Validate isApproved
+    if (typeof isApproved !== 'boolean') {
       return res.status(400).json({
         success: false,
-        message: 'Invalid status. Must be APPROVED or REJECTED'
+        message: 'isApproved must be true or false'
       });
     }
 
@@ -256,7 +258,7 @@ const updateVisitorStatus = async (req, res) => {
       });
     }
 
-    if (existingLog.status !== 'PENDING') {
+    if (existingLog.isApproved !== null) {
       return res.status(400).json({
         success: false,
         message: 'Visitor request has already been processed'
@@ -289,10 +291,9 @@ const updateVisitorStatus = async (req, res) => {
     const visitorLog = await prisma.visitorLog.update({
       where: { id },
       data: {
-        status,
-        remarks,
-        approvedById: req.user.id,
-        approvedAt: new Date()
+        isApproved,
+        rejectionReason: !isApproved ? rejectionReason : null,
+        updatedAt: new Date()
       },
       include: {
         flat: {
@@ -301,7 +302,7 @@ const updateVisitorStatus = async (req, res) => {
             floor: true
           }
         },
-        approvedBy: {
+        guard: {
           select: {
             firstName: true,
             lastName: true
@@ -312,14 +313,73 @@ const updateVisitorStatus = async (req, res) => {
 
     res.json({
       success: true,
-      message: `Visitor ${status.toLowerCase()} successfully`,
-      data: { visitorLog }
+      message: `Visitor ${isApproved ? 'approved' : 'rejected'} successfully`,
+      data: { visitor: visitorLog }
     });
   } catch (error) {
     console.error('Update visitor status error:', error);
     res.status(500).json({
       success: false,
       message: 'Failed to update visitor status'
+    });
+  }
+};
+
+// Record visitor check-in (Guard only)
+const recordVisitorCheckIn = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const existingLog = await prisma.visitorLog.findUnique({
+      where: { id }
+    });
+
+    if (!existingLog) {
+      return res.status(404).json({
+        success: false,
+        message: 'Visitor log not found'
+      });
+    }
+
+    if (existingLog.isApproved !== true) {
+      return res.status(400).json({
+        success: false,
+        message: 'Can only check in approved visitors'
+      });
+    }
+
+    if (existingLog.inTime) {
+      return res.status(400).json({
+        success: false,
+        message: 'Visitor already checked in'
+      });
+    }
+
+    const visitorLog = await prisma.visitorLog.update({
+      where: { id },
+      data: {
+        inTime: new Date()
+      },
+      include: {
+        flat: {
+          select: {
+            flatNumber: true,
+            floor: true
+          }
+        }
+      }
+    });
+
+    res.json({
+      success: true,
+      message: 'Visitor checked in successfully',
+      data: { visitor: visitorLog }
+    });
+  } catch (error) {
+    console.error('Record visitor check-in error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to record visitor check-in'
     });
   }
 };
@@ -340,14 +400,14 @@ const recordVisitorExit = async (req, res) => {
       });
     }
 
-    if (existingLog.status !== 'APPROVED') {
+    if (existingLog.isApproved !== true) {
       return res.status(400).json({
         success: false,
         message: 'Can only record exit for approved visitors'
       });
     }
 
-    if (existingLog.exitTime) {
+    if (existingLog.outTime) {
       return res.status(400).json({
         success: false,
         message: 'Exit already recorded for this visitor'
@@ -357,8 +417,7 @@ const recordVisitorExit = async (req, res) => {
     const visitorLog = await prisma.visitorLog.update({
       where: { id },
       data: {
-        exitTime: new Date(),
-        status: 'COMPLETED'
+        outTime: new Date()
       },
       include: {
         flat: {
@@ -373,7 +432,7 @@ const recordVisitorExit = async (req, res) => {
     res.json({
       success: true,
       message: 'Visitor exit recorded successfully',
-      data: { visitorLog }
+      data: { visitor: visitorLog }
     });
   } catch (error) {
     console.error('Record visitor exit error:', error);
@@ -387,7 +446,7 @@ const recordVisitorExit = async (req, res) => {
 // Get pending approvals for user
 const getPendingApprovals = async (req, res) => {
   try {
-    let where = { status: 'PENDING' };
+    let where = { isApproved: null };
 
     // Filter based on user role
     if (req.user.role === 'OWNER') {
@@ -419,7 +478,7 @@ const getPendingApprovals = async (req, res) => {
           }
         }
       },
-      orderBy: { entryTime: 'desc' }
+      orderBy: { inTime: 'desc' }
     });
 
     res.json({
@@ -443,6 +502,7 @@ module.exports = {
   getVisitorLogById,
   createVisitorEntry,
   updateVisitorStatus,
+  recordVisitorCheckIn,
   recordVisitorExit,
   getPendingApprovals
 };

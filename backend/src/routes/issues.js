@@ -27,9 +27,8 @@ router.get('/stats', getIssueStats);
 // Get issue by ID
 router.get('/:id', getIssueById);
 
-// Create issue (Owner/Tenant)
+// Create issue (Any authenticated user)
 router.post('/', [
-  residentOnly,
   body('title')
     .trim()
     .isLength({ min: 5, max: 200 })

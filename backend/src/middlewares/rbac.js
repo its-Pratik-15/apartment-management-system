@@ -17,7 +17,7 @@ const ROLE_PERMISSIONS = {
     'leases:create', 'leases:read', 'leases:update', 'leases:delete',
     'bills:create', 'bills:read', 'bills:update', 'bills:delete',
     'notices:create', 'notices:read', 'notices:update', 'notices:delete',
-    'issues:read', 'issues:update',
+    'issues:create', 'issues:read', 'issues:update',
     'visitors:read',
     'analytics:read'
   ],
@@ -36,12 +36,13 @@ const ROLE_PERMISSIONS = {
     'visitors:approve:own'
   ],
   STAFF: [
-    'issues:read', 'issues:update',
+    'issues:create', 'issues:read', 'issues:update',
     'notices:read'
   ],
   GUARD: [
     'visitors:create', 'visitors:read', 'visitors:update',
-    'notices:read'
+    'notices:read',
+    'issues:create', 'issues:read'
   ]
 };
 
