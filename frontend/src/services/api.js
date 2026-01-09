@@ -122,6 +122,7 @@ export const apiService = {
     getById: (id) => api.get(`/visitors/${id}`),
     create: (visitorData) => api.post('/visitors', visitorData),
     updateStatus: (id, statusData) => api.patch(`/visitors/${id}/status`, statusData),
+    recordCheckIn: (id) => api.patch(`/visitors/${id}/checkin`),
     recordExit: (id) => api.patch(`/visitors/${id}/exit`),
     getPending: () => api.get('/visitors/pending'),
   },
