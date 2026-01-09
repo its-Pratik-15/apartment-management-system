@@ -84,6 +84,11 @@ export const AuthProvider = ({ children }) => {
     initAuth();
   }, [token]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Update user profile
+  const updateUser = (updatedUserData) => {
+    setUser(updatedUserData);
+  };
+
   const value = {
     user,
     token,
@@ -91,6 +96,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     getProfile,
+    updateUser,
     isAuthenticated: !!user
   };
 

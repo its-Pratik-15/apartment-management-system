@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 const Header = ({ setSidebarOpen, user }) => {
@@ -71,12 +72,13 @@ const Header = ({ setSidebarOpen, user }) => {
             {/* Dropdown menu */}
             {userMenuOpen && (
               <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <button
+                <Link
+                  to="/dashboard/profile"
                   onClick={() => setUserMenuOpen(false)}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 >
                   Your Profile
-                </button>
+                </Link>
                 <button
                   onClick={() => setUserMenuOpen(false)}
                   className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

@@ -18,15 +18,14 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
           { name: 'Bills', href: '/dashboard/bills', icon: 'currency' },
           { name: 'Notices', href: '/dashboard/notices', icon: 'speakerphone' },
           { name: 'Issues', href: '/dashboard/issues', icon: 'exclamation' },
-          { name: 'Reports', href: '/dashboard/reports', icon: 'chart' },
+          { name: 'Visitors', href: '/dashboard/visitors', icon: 'user-group' },
         ];
       
       case 'OWNER':
         return [
           ...baseItems,
-          { name: 'My Flats', href: '/dashboard/flats', icon: 'building' },
-          { name: 'My Bills', href: '/dashboard/bills', icon: 'currency' },
-          { name: 'Tenants', href: '/dashboard/tenants', icon: 'users' },
+          { name: 'Bills', href: '/dashboard/bills', icon: 'currency' },
+          { name: 'Visitors', href: '/dashboard/visitors', icon: 'user-group' },
           { name: 'Notices', href: '/dashboard/notices', icon: 'speakerphone' },
           { name: 'Issues', href: '/dashboard/issues', icon: 'exclamation' },
         ];
@@ -34,7 +33,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
       case 'TENANT':
         return [
           ...baseItems,
-          { name: 'My Bills', href: '/dashboard/bills', icon: 'currency' },
+          { name: 'Bills', href: '/dashboard/bills', icon: 'currency' },
           { name: 'Visitors', href: '/dashboard/visitors', icon: 'user-group' },
           { name: 'Notices', href: '/dashboard/notices', icon: 'speakerphone' },
           { name: 'Issues', href: '/dashboard/issues', icon: 'exclamation' },
@@ -51,7 +50,6 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, userRole }) => {
         return [
           ...baseItems,
           { name: 'Visitors', href: '/dashboard/visitors', icon: 'user-group' },
-          { name: 'Entry Log', href: '/dashboard/entry-log', icon: 'clipboard-list' },
           { name: 'Notices', href: '/dashboard/notices', icon: 'speakerphone' },
         ];
       
