@@ -34,7 +34,7 @@ const NoticeForm = ({ noticeId = null }) => {
       setFormData({
         title: notice.title,
         content: notice.content,
-        targetRoles: notice.targetRoles ? notice.targetRoles.split(',') : [],
+        targetRoles: Array.isArray(notice.targetRoles) ? notice.targetRoles : (notice.targetRoles ? notice.targetRoles.split(',') : []),
         isPinned: notice.isPinned,
         expiryDate: notice.expiryDate ? new Date(notice.expiryDate).toISOString().split('T')[0] : ''
       });

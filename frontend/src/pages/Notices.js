@@ -86,8 +86,11 @@ const Notices = () => {
   };
 
   const getTargetRolesBadges = (targetRoles) => {
-    if (!targetRoles) return null;
-    const roles = targetRoles.split(',');
+    if (!targetRoles || targetRoles.length === 0) return null;
+    
+    // Handle both string (legacy) and array formats
+    const roles = Array.isArray(targetRoles) ? targetRoles : targetRoles.split(',');
+    
     const colors = {
       OWNER: 'bg-blue-100 text-blue-800',
       TENANT: 'bg-green-100 text-green-800',
