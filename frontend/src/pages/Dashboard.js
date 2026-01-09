@@ -18,6 +18,10 @@ import NewFlat from './NewFlat';
 import NewNotice from './NewNotice';
 import NewIssue from './NewIssue';
 import NewVisitor from './NewVisitor';
+import Profile from './Profile';
+import FlatDetails from './FlatDetails';
+import FlatEdit from './FlatEdit';
+import LeaseDetails from './LeaseDetails';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -54,29 +58,29 @@ const Dashboard = () => {
       <Routes>
         <Route path="/" element={getDashboardComponent()} />
         
+        {/* Notices - accessible by all authenticated users */}
+        <Route path="/notices" element={<Notices />} />
+        
         {/* Secretary-only routes */}
         {user?.role === 'SECRETARY' && (
           <>
             <Route path="/users" element={<Users />} />
             <Route path="/flats" element={<Flats />} />
             <Route path="/flats/new" element={<NewFlat />} />
+            <Route path="/flats/:id" element={<FlatDetails />} />
+            <Route path="/flats/:id/edit" element={<FlatEdit />} />
             <Route path="/leases" element={<Leases />} />
-            <Route path="/notices" element={<Notices />} />
+            <Route path="/leases/:id" element={<LeaseDetails />} />
             <Route path="/notices/new" element={<NewNotice />} />
-            <Route path="/reports" element={<div>Reports (Coming Soon)</div>} />
           </>
         )}
         
         {/* Bills - accessible by all roles */}
         <Route path="/bills" element={<Bills />} />
         
-        {/* Issues - accessible by owners and tenants */}
-        {(user?.role === 'OWNER' || user?.role === 'TENANT' || user?.role === 'SECRETARY' || user?.role === 'STAFF') && (
-          <>
-            <Route path="/issues" element={<Issues />} />
-            <Route path="/issues/new" element={<NewIssue />} />
-          </>
-        )}
+        {/* Issues - accessible by all authenticated users */}
+        <Route path="/issues" element={<Issues />} />
+        <Route path="/issues/new" element={<NewIssue />} />
         
         {/* Visitors - accessible by owners, tenants, and guards */}
         {(user?.role === 'OWNER' || user?.role === 'TENANT' || user?.role === 'GUARD' || user?.role === 'SECRETARY') && (
@@ -87,7 +91,7 @@ const Dashboard = () => {
         )}
         
         {/* Common routes */}
-        <Route path="/profile" element={<div>Profile Page (Coming Soon)</div>} />
+        <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<div>Settings Page (Coming Soon)</div>} />
         
         {/* Catch all */}
