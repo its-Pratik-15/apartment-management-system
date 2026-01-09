@@ -13,40 +13,45 @@ const runLeaseExpiryJob = async () => {
       console.log(`Expired ${expiredCount} leases`);
     }
     
-    // Get leases expiring in the next 30 days for alerts
+    // Get leases expiring in the next 30 days for alerts (with connection timeout)
     const futureDate = new Date();
     futureDate.setDate(futureDate.getDate() + 30);
     
-    const expiringLeases = await prisma.lease.findMany({
-      where: {
-        isActive: true,
-        endDate: {
-          gte: new Date(),
-          lte: futureDate
-        }
-      },
-      include: {
-        flat: {
-          select: {
-            flatNumber: true,
-            owner: {
-              select: {
-                firstName: true,
-                lastName: true,
-                email: true
-              }
-            }
+    const expiringLeases = await Promise.race([
+      prisma.lease.findMany({
+        where: {
+          isActive: true,
+          endDate: {
+            gte: new Date(),
+            lte: futureDate
           }
         },
-        tenant: {
-          select: {
-            firstName: true,
-            lastName: true,
-            email: true
+        include: {
+          flat: {
+            select: {
+              flatNumber: true,
+              owner: {
+                select: {
+                  firstName: true,
+                  lastName: true,
+                  email: true
+                }
+              }
+            }
+          },
+          tenant: {
+            select: {
+              firstName: true,
+              lastName: true,
+              email: true
+            }
           }
         }
-      }
-    });
+      }),
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Database query timeout')), 15000)
+      )
+    ]);
     
     if (expiringLeases.length > 0) {
       console.log(`${expiringLeases.length} leases expiring in the next 30 days`);
@@ -66,7 +71,13 @@ const runLeaseExpiryJob = async () => {
     };
   } catch (error) {
     console.error('Lease expiry job error:', error);
-    throw error;
+    // Don't throw the error to prevent the job from stopping
+    return {
+      expiredCount: 0,
+      expiringCount: 0,
+      expiringLeases: [],
+      error: error.message
+    };
   }
 };
 
@@ -190,12 +201,18 @@ const getLeaseAlerts = async () => {
 const startLeaseExpiryJob = () => {
   console.log('Starting lease expiry background job...');
   
-  // Run immediately
-  runLeaseExpiryJob().catch(console.error);
+  // Run after a 30-second delay to let the server fully start
+  setTimeout(() => {
+    runLeaseExpiryJob().catch(error => {
+      console.error('Initial lease expiry job failed:', error);
+    });
+  }, 30000);
   
   // Then run every hour (3600000 ms)
   const intervalId = setInterval(() => {
-    runLeaseExpiryJob().catch(console.error);
+    runLeaseExpiryJob().catch(error => {
+      console.error('Scheduled lease expiry job failed:', error);
+    });
   }, 3600000);
   
   return intervalId;
