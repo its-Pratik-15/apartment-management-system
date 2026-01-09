@@ -62,6 +62,13 @@ const getAllVisitorLogs = async (req, res) => {
         select: { flatId: true }
       });
       where.flatId = { in: userLeases.map(l => l.flatId) };
+    } else if (req.user.role === 'GUARD') {
+      // Guards can see all visitors, but can filter for pending resident requests
+      if (req.query.pendingResidentRequests === 'true') {
+        where.hostId = { not: null };
+        where.guardId = null;
+        where.isApproved = null;
+      }
     }
 
     const [visitorLogs, total] = await Promise.all([
@@ -81,6 +88,12 @@ const getAllVisitorLogs = async (req, res) => {
             }
           },
           guard: {
+            select: {
+              firstName: true,
+              lastName: true
+            }
+          },
+          host: {
             select: {
               firstName: true,
               lastName: true
@@ -189,7 +202,7 @@ const getVisitorLogById = async (req, res) => {
   }
 };
 
-// Create visitor entry (Guard only)
+// Create visitor entry (Guard only) or visitor request (Owner/Tenant/Secretary)
 const createVisitorEntry = async (req, res) => {
   try {
     const { 
@@ -202,15 +215,31 @@ const createVisitorEntry = async (req, res) => {
       idProofNumber 
     } = req.body;
 
+    let visitorData = {
+      visitorName,
+      visitorPhone,
+      flatId,
+      purpose
+    };
+
+    // Different workflow based on user role
+    if (req.user.role === 'GUARD') {
+      // Guard-initiated: Guard creates entry, needs host approval
+      visitorData.guardId = req.user.id;
+      visitorData.isApproved = null; // Pending approval from host
+    } else if (['OWNER', 'TENANT', 'SECRETARY'].includes(req.user.role)) {
+      // Resident-initiated: Resident requests visitor, needs guard approval
+      visitorData.hostId = req.user.id;
+      visitorData.isApproved = null; // Pending approval from guard
+    } else {
+      return res.status(403).json({
+        success: false,
+        message: 'Unauthorized to create visitor entries'
+      });
+    }
+
     const visitorLog = await prisma.visitorLog.create({
-      data: {
-        visitorName,
-        visitorPhone,
-        flatId,
-        purpose,
-        guardId: req.user.id,
-        isApproved: null
-      },
+      data: visitorData,
       include: {
         flat: {
           select: {
@@ -223,13 +252,29 @@ const createVisitorEntry = async (req, res) => {
               }
             }
           }
+        },
+        guard: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
+        },
+        host: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
         }
       }
     });
 
+    const message = req.user.role === 'GUARD' 
+      ? 'Visitor entry created successfully'
+      : 'Visitor request submitted successfully';
+
     res.status(201).json({
       success: true,
-      message: 'Visitor entry created successfully',
+      message,
       data: { visitor: visitorLog }
     });
   } catch (error) {
@@ -241,7 +286,7 @@ const createVisitorEntry = async (req, res) => {
   }
 };
 
-// Approve/Reject visitor (Owner/Tenant)
+// Approve/Reject visitor (Owner/Tenant for guard-initiated, Guard for resident-initiated)
 const updateVisitorStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -257,7 +302,11 @@ const updateVisitorStatus = async (req, res) => {
 
     const existingLog = await prisma.visitorLog.findUnique({
       where: { id },
-      include: { flat: true }
+      include: { 
+        flat: true,
+        guard: true,
+        host: true
+      }
     });
 
     if (!existingLog) {
@@ -274,26 +323,32 @@ const updateVisitorStatus = async (req, res) => {
       });
     }
 
-    // Check permissions
+    // Check permissions based on workflow type
     let canApprove = false;
     
-    if (req.user.role === 'OWNER' && existingLog.flat.ownerId === req.user.id) {
-      canApprove = true;
-    } else if (req.user.role === 'TENANT') {
-      const userLease = await prisma.lease.findFirst({
-        where: {
-          tenantId: req.user.id,
-          flatId: existingLog.flatId,
-          isActive: true
-        }
-      });
-      canApprove = !!userLease;
+    if (existingLog.guardId && !existingLog.hostId) {
+      // Guard-initiated visitor: Owner/Tenant can approve
+      if (req.user.role === 'OWNER' && existingLog.flat.ownerId === req.user.id) {
+        canApprove = true;
+      } else if (req.user.role === 'TENANT') {
+        const userLease = await prisma.lease.findFirst({
+          where: {
+            tenantId: req.user.id,
+            flatId: existingLog.flatId,
+            isActive: true
+          }
+        });
+        canApprove = !!userLease;
+      }
+    } else if (existingLog.hostId && !existingLog.guardId) {
+      // Resident-initiated visitor: Guard can approve
+      canApprove = req.user.role === 'GUARD';
     }
 
     if (!canApprove) {
       return res.status(403).json({
         success: false,
-        message: 'You are not authorized to approve visitors for this flat'
+        message: 'You are not authorized to approve this visitor request'
       });
     }
 
@@ -312,6 +367,12 @@ const updateVisitorStatus = async (req, res) => {
           }
         },
         guard: {
+          select: {
+            firstName: true,
+            lastName: true
+          }
+        },
+        host: {
           select: {
             firstName: true,
             lastName: true
