@@ -24,6 +24,11 @@ const getAllFlats = async (req, res) => {
         select: { flatId: true }
       });
       where.id = { in: userLeases.map(l => l.flatId) };
+    } else if (req.user.role === 'GUARD') {
+      // Guards can see all flats (needed for visitor management)
+      if (ownerId) {
+        where.ownerId = ownerId;
+      }
     } else if (req.user.role === 'SECRETARY') {
       // Secretary can see all flats, apply ownerId filter if provided
       if (ownerId) {

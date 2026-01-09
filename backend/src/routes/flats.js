@@ -22,9 +22,9 @@ const router = express.Router();
 // All routes require authentication
 router.use(authenticateToken);
 
-// Get all flats (Secretary can see all, Owner/Tenant see their own)
+// Get all flats (Secretary/Guard can see all, Owner/Tenant see their own)
 router.get('/', [
-  requireRole('OWNER', 'TENANT', 'SECRETARY'),
+  requireRole('OWNER', 'TENANT', 'GUARD', 'SECRETARY'),
   ...validatePagination(),
   handleValidationErrors
 ], getAllFlats);
