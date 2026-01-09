@@ -33,16 +33,35 @@ const getAllLeases = async (req, res) => {
 
     const where = {};
     
+    // Role-based access control
+    if (req.user.role === 'OWNER') {
+      // Owners can only see leases for their flats
+      const userFlats = await prisma.flat.findMany({
+        where: { ownerId: req.user.id },
+        select: { id: true }
+      });
+      where.flatId = { in: userFlats.map(f => f.id) };
+    } else if (req.user.role === 'TENANT') {
+      // Tenants can only see their own leases
+      where.tenantId = req.user.id;
+    } else if (req.user.role === 'SECRETARY') {
+      // Secretary can see all leases, apply filters if provided
+      if (flatId) {
+        where.flatId = flatId;
+      }
+      if (tenantId) {
+        where.tenantId = tenantId;
+      }
+    } else {
+      // Other roles have no access to leases
+      return res.status(403).json({
+        success: false,
+        message: 'Insufficient permissions to view leases'
+      });
+    }
+    
     if (isActive !== undefined) {
       where.isActive = isActive === 'true';
-    }
-
-    if (flatId) {
-      where.flatId = flatId;
-    }
-
-    if (tenantId) {
-      where.tenantId = tenantId;
     }
 
     const [leases, total] = await Promise.all([

@@ -8,7 +8,7 @@ const {
   getExpiringLeases
 } = require('../controllers/leaseController');
 const { authenticateToken } = require('../middlewares/auth');
-const { secretaryOnly, ownerOrSecretary } = require('../middlewares/rbac');
+const { secretaryOnly, ownerOrSecretary, requireRole } = require('../middlewares/rbac');
 const {
   validateId,
   validateDate,
@@ -33,9 +33,9 @@ router.get('/expiring', [
   handleValidationErrors
 ], getExpiringLeases);
 
-// Get all leases (Secretary only)
+// Get all leases (Secretary can see all, Owner/Tenant see their own)
 router.get('/', [
-  secretaryOnly,
+  requireRole('OWNER', 'TENANT', 'SECRETARY'),
   ...validatePagination(),
   handleValidationErrors
 ], getAllLeases);
