@@ -1,6 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const { prisma } = require('../config/database');
 
 // Smart bill assignment based on occupancy status
 const assignBillToUser = async (flatId, billType) => {

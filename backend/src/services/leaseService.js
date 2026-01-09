@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../config/database');
 const { autoExpireLeases } = require('../controllers/leaseController');
-
-const prisma = new PrismaClient();
 
 // Background job to check and expire leases
 const runLeaseExpiryJob = async () => {

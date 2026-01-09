@@ -1,6 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const { prisma } = require('../config/database');
 
 // Get all notices
 const getAllNotices = async (req, res) => {

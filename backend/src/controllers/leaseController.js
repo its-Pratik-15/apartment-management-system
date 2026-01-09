@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../config/database');
 const { updateOccupancyStatus } = require('./flatController');
-
-const prisma = new PrismaClient();
 
 // Helper function to get tenant's current flat
 const getTenantCurrentFlat = async (tenantId) => {

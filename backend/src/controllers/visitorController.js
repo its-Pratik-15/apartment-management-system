@@ -1,6 +1,4 @@
-const { PrismaClient } = require('@prisma/client');
-
-const prisma = new PrismaClient();
+const { prisma } = require('../config/database');
 
 // Get all visitor logs
 const getAllVisitorLogs = async (req, res) => {
@@ -51,6 +49,23 @@ const getAllVisitorLogs = async (req, res) => {
         where: { ownerId: req.user.id },
         select: { id: true }
       });
+      
+      if (userFlats.length === 0) {
+        // Owner has no flats, return empty result
+        return res.json({
+          success: true,
+          data: {
+            visitors: [],
+            pagination: {
+              page: parseInt(page),
+              limit: parseInt(limit),
+              total: 0,
+              pages: 0
+            }
+          }
+        });
+      }
+      
       where.flatId = { in: userFlats.map(f => f.id) };
     } else if (req.user.role === 'TENANT') {
       // Tenants can only see visitors to flats they lease
@@ -61,6 +76,23 @@ const getAllVisitorLogs = async (req, res) => {
         },
         select: { flatId: true }
       });
+      
+      if (userLeases.length === 0) {
+        // Tenant has no active leases, return empty result
+        return res.json({
+          success: true,
+          data: {
+            visitors: [],
+            pagination: {
+              page: parseInt(page),
+              limit: parseInt(limit),
+              total: 0,
+              pages: 0
+            }
+          }
+        });
+      }
+      
       where.flatId = { in: userLeases.map(l => l.flatId) };
     } else if (req.user.role === 'GUARD') {
       // Guards can see all visitors, but can filter for pending resident requests

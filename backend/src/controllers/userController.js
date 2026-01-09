@@ -1,7 +1,5 @@
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../config/database');
 const { hashPassword } = require('../utils/password');
-
-const prisma = new PrismaClient();
 
 // Get all users (Secretary only)
 const getAllUsers = async (req, res) => {
