@@ -15,6 +15,7 @@ import Notices from './Notices';
 import Issues from './Issues';
 import Visitors from './Visitors';
 import NewFlat from './NewFlat';
+import NewLease from './NewLease';
 import NewNotice from './NewNotice';
 import NewIssue from './NewIssue';
 import NewVisitor from './NewVisitor';
@@ -70,6 +71,7 @@ const Dashboard = () => {
             <Route path="/flats/:id" element={<FlatDetails />} />
             <Route path="/flats/:id/edit" element={<FlatEdit />} />
             <Route path="/leases" element={<Leases />} />
+            <Route path="/leases/new" element={<NewLease />} />
             <Route path="/leases/:id" element={<LeaseDetails />} />
             <Route path="/notices/new" element={<NewNotice />} />
           </>
