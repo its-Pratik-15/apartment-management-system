@@ -16,6 +16,7 @@ import Issues from './Issues';
 import Visitors from './Visitors';
 import NewFlat from './NewFlat';
 import NewLease from './NewLease';
+import NewBill from './NewBill';
 import NewNotice from './NewNotice';
 import NewIssue from './NewIssue';
 import NewVisitor from './NewVisitor';
@@ -79,6 +80,9 @@ const Dashboard = () => {
         
         {/* Bills - accessible by all roles */}
         <Route path="/bills" element={<Bills />} />
+        {user?.role === 'SECRETARY' && (
+          <Route path="/bills/new" element={<NewBill />} />
+        )}
         
         {/* Issues - accessible by all authenticated users */}
         <Route path="/issues" element={<Issues />} />
