@@ -3,6 +3,28 @@ const { updateOccupancyStatus } = require('./flatController');
 
 const prisma = new PrismaClient();
 
+// Helper function to get tenant's current flat
+const getTenantCurrentFlat = async (tenantId) => {
+  try {
+    const activeLease = await prisma.lease.findFirst({
+      where: {
+        tenantId,
+        isActive: true,
+        startDate: { lte: new Date() },
+        endDate: { gte: new Date() }
+      },
+      include: {
+        flat: true
+      }
+    });
+    
+    return activeLease ? activeLease.flat : null;
+  } catch (error) {
+    console.error('Error getting tenant current flat:', error);
+    return null;
+  }
+};
+
 // Get all leases
 const getAllLeases = async (req, res) => {
   try {
@@ -493,5 +515,6 @@ module.exports = {
   updateLease,
   terminateLease,
   getExpiringLeases,
-  autoExpireLeases
+  autoExpireLeases,
+  getTenantCurrentFlat
 };
