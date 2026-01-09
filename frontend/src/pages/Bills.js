@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { showSuccess, showError, showWarning, showLoading, dismissToast } from '../components/ErrorMessage';
 
 const Bills = () => {
   const { user } = useAuth();
@@ -29,6 +30,7 @@ const Bills = () => {
       setPagination(response.data.data.pagination);
     } catch (error) {
       console.error('Error fetching bills:', error);
+      showError('Failed to load bills. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -40,6 +42,7 @@ const Bills = () => {
       setSummary(response.data.data.summary);
     } catch (error) {
       console.error('Error fetching summary:', error);
+      showWarning('Could not load bill summary.');
     }
   };
 
@@ -59,16 +62,21 @@ const Bills = () => {
   };
 
   const handlePayBill = async (billId) => {
+    const loadingToast = showLoading('Processing payment...');
+    
     try {
       await apiService.bills.pay(billId, {
         paymentMethod: 'Online',
         transactionId: `TXN${Date.now()}`
       });
+      dismissToast(loadingToast);
+      showSuccess('Bill paid successfully!');
       fetchBills();
       fetchSummary();
     } catch (error) {
       console.error('Error paying bill:', error);
-      alert('Failed to pay bill. Please try again.');
+      dismissToast(loadingToast);
+      showError('Failed to pay bill. Please try again.');
     }
   };
 

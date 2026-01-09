@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { showSuccess, showError, showWarning, showLoading, dismissToast } from '../components/ErrorMessage';
 
 const Visitors = () => {
   const { user } = useAuth();
@@ -42,6 +43,7 @@ const Visitors = () => {
       setPagination(response.data.data.pagination);
     } catch (error) {
       console.error('Error fetching visitors:', error);
+      showError('Failed to load visitors. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -76,32 +78,53 @@ const Visitors = () => {
   };
 
   const handleUpdateStatus = async (visitorId, isApproved) => {
+    const loadingToast = showLoading(
+      `${isApproved ? 'Approving' : 'Rejecting'} visitor...`
+    );
+    
     try {
       await apiService.visitors.updateStatus(visitorId, { isApproved });
+      dismissToast(loadingToast);
+      showSuccess(
+        `Visitor ${isApproved ? 'approved' : 'rejected'} successfully!`
+      );
       fetchVisitors();
     } catch (error) {
       console.error('Error updating visitor status:', error);
-      alert('Failed to update visitor status. Please try again.');
+      dismissToast(loadingToast);
+      showError(
+        `Failed to ${isApproved ? 'approve' : 'reject'} visitor. Please try again.`
+      );
     }
   };
 
   const handleRecordCheckIn = async (visitorId) => {
+    const loadingToast = showLoading('Recording visitor check-in...');
+    
     try {
       await apiService.visitors.recordCheckIn(visitorId);
+      dismissToast(loadingToast);
+      showSuccess('Visitor checked in successfully!');
       fetchVisitors();
     } catch (error) {
       console.error('Error recording check-in:', error);
-      alert('Failed to record visitor check-in. Please try again.');
+      dismissToast(loadingToast);
+      showError('Failed to record visitor check-in. Please try again.');
     }
   };
 
   const handleRecordExit = async (visitorId) => {
+    const loadingToast = showLoading('Recording visitor exit...');
+    
     try {
       await apiService.visitors.recordExit(visitorId);
+      dismissToast(loadingToast);
+      showSuccess('Visitor exit recorded successfully!');
       fetchVisitors();
     } catch (error) {
       console.error('Error recording exit:', error);
-      alert('Failed to record visitor exit. Please try again.');
+      dismissToast(loadingToast);
+      showError('Failed to record visitor exit. Please try again.');
     }
   };
 

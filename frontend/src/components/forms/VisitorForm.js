@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { showSuccess, showError, showWarning, showLoading, dismissToast } from '../ErrorMessage';
 
 const VisitorForm = ({ visitorId = null }) => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const VisitorForm = ({ visitorId = null }) => {
       }
     } catch (error) {
       console.error('Error fetching user flat:', error);
+      showError('Failed to load your flat information.');
     }
   };
 
@@ -50,6 +52,7 @@ const VisitorForm = ({ visitorId = null }) => {
       setFlats(response.data.data.flats);
     } catch (error) {
       console.error('Error fetching flats:', error);
+      showError('Failed to load flats. Please refresh the page.');
     }
   };
 
@@ -65,6 +68,7 @@ const VisitorForm = ({ visitorId = null }) => {
       });
     } catch (error) {
       console.error('Error fetching visitor:', error);
+      showError('Failed to load visitor information.');
     }
   };
 
@@ -80,6 +84,10 @@ const VisitorForm = ({ visitorId = null }) => {
     e.preventDefault();
     setLoading(true);
 
+    const loadingToast = showLoading(
+      visitorId ? 'Updating visitor...' : 'Creating visitor request...'
+    );
+
     try {
       const submitData = {
         ...formData
@@ -87,14 +95,23 @@ const VisitorForm = ({ visitorId = null }) => {
 
       if (visitorId) {
         await apiService.visitors.update(visitorId, submitData);
+        dismissToast(loadingToast);
+        showSuccess('Visitor updated successfully!');
       } else {
         await apiService.visitors.create(submitData);
+        dismissToast(loadingToast);
+        showSuccess(
+          user.role === 'GUARD' 
+            ? 'Visitor registered successfully!' 
+            : 'Visitor request submitted successfully!'
+        );
       }
 
       navigate('/dashboard/visitors');
     } catch (error) {
       console.error('Error saving visitor:', error);
-      alert('Failed to save visitor. Please try again.');
+      dismissToast(loadingToast);
+      showError('Failed to save visitor. Please try again.');
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { apiService } from '../../services/api';
+import { showSuccess, showError, showWarning, showLoading, dismissToast } from '../ErrorMessage';
 
 const BillForm = ({ onSubmit, onCancel, initialData = null }) => {
   const [formData, setFormData] = useState({
@@ -33,6 +34,7 @@ const BillForm = ({ onSubmit, onCancel, initialData = null }) => {
       setFlats(response.data.data.flats);
     } catch (error) {
       console.error('Error fetching flats:', error);
+      showError('Failed to load flats. Please refresh the page.');
     }
   };
 
@@ -90,10 +92,12 @@ const BillForm = ({ onSubmit, onCancel, initialData = null }) => {
     e.preventDefault();
     
     if (!validateForm()) {
+      showError('Please fix the form errors before submitting.');
       return;
     }
 
     setLoading(true);
+    const loadingToast = showLoading('Saving bill...');
     
     try {
       const submitData = {
@@ -102,8 +106,12 @@ const BillForm = ({ onSubmit, onCancel, initialData = null }) => {
       };
       
       await onSubmit(submitData);
+      dismissToast(loadingToast);
+      showSuccess('Bill saved successfully!');
     } catch (error) {
       console.error('Error submitting form:', error);
+      dismissToast(loadingToast);
+      showError('Failed to save bill. Please try again.');
     } finally {
       setLoading(false);
     }

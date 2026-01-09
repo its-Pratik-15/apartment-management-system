@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import { showSuccess, showError, showWarning, showLoading, dismissToast } from '../components/ErrorMessage';
 import ConfirmDialog from '../components/ConfirmDialog';
 
 const Notices = () => {
@@ -32,6 +33,7 @@ const Notices = () => {
       setPagination(response.data.data.pagination);
     } catch (error) {
       console.error('Error fetching notices:', error);
+      showError('Failed to load notices. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -53,12 +55,17 @@ const Notices = () => {
   };
 
   const handleTogglePin = async (noticeId) => {
+    const loadingToast = showLoading('Updating notice pin status...');
+    
     try {
       await apiService.notices.togglePin(noticeId);
+      dismissToast(loadingToast);
+      showSuccess('Notice pin status updated successfully!');
       fetchNotices();
     } catch (error) {
       console.error('Error toggling pin:', error);
-      alert('Failed to update notice pin status. Please try again.');
+      dismissToast(loadingToast);
+      showError('Failed to update notice pin status. Please try again.');
     }
   };
 
@@ -71,13 +78,18 @@ const Notices = () => {
   };
 
   const confirmDelete = async () => {
+    const loadingToast = showLoading('Deleting notice...');
+    
     try {
       await apiService.notices.delete(deleteDialog.noticeId);
+      dismissToast(loadingToast);
+      showSuccess('Notice deleted successfully!');
       fetchNotices();
       setDeleteDialog({ isOpen: false, noticeId: null, noticeTitle: '' });
     } catch (error) {
       console.error('Error deleting notice:', error);
-      alert('Failed to delete notice. Please try again.');
+      dismissToast(loadingToast);
+      showError('Failed to delete notice. Please try again.');
     }
   };
 
