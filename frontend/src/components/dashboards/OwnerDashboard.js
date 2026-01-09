@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { showError, showWarning } from '../ErrorMessage';
 
 const OwnerDashboard = () => {
   const { user } = useAuth();
@@ -84,6 +85,8 @@ const OwnerDashboard = () => {
         setRecentActivity(activity);
       } catch (error) {
         console.error('Error fetching stats:', error);
+        showError('Failed to load dashboard data. Please refresh the page.');
+        
         // Set default stats in case of error
         setStats({
           flats: { owned: 0 },

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { showError, showWarning } from '../ErrorMessage';
 
 const TenantDashboard = () => {
   const { user } = useAuth();
@@ -77,6 +78,13 @@ const TenantDashboard = () => {
           notices: { total: tenantNotices.length, pinned: pinnedNotices }
         });
 
+        // Show lease expiration warning
+        if (leaseInfo.daysRemaining > 0 && leaseInfo.daysRemaining <= 30) {
+          showWarning(`Your lease expires in ${leaseInfo.daysRemaining} days. Please contact management for renewal.`);
+        } else if (leaseInfo.daysRemaining <= 0 && leaseInfo.endDate) {
+          showError('Your lease has expired. Please contact management immediately.');
+        }
+
         // Fetch recent activity
         const [recentBills, recentIssues, recentVisitors] = await Promise.all([
           apiService.bills.getAll({ userId: user.id, limit: 3 }),
@@ -111,6 +119,8 @@ const TenantDashboard = () => {
         setRecentActivity(activity);
       } catch (error) {
         console.error('Error fetching tenant stats:', error);
+        showError('Failed to load dashboard data. Please refresh the page.');
+        
         // Set default stats in case of error
         setStats({
           bills: { total: 0, overdue: 0, totalAmount: 0, pendingAmount: 0 },
