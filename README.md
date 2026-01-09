@@ -175,14 +175,18 @@ REACT_APP_API_URL="https://your-backend-domain.com/api"
 
 ### Production Deployment
 
-#### Backend (Railway/Render)
+#### Backend (Railway/Render/Vercel)
 ```bash
-# 1. Switch to PostgreSQL in prisma/schema.prisma
-provider = "postgresql"
+# 1. Prisma schema is already configured for PostgreSQL
+# 2. Set up Supabase PostgreSQL database
+# 3. Configure environment variables:
 
-# 2. Deploy to Railway/Render
-# 3. Set environment variables
-# 4. Run migrations
+# Supabase PostgreSQL URLs
+DATABASE_URL="postgresql://postgres.ulpjfiifqsbjlcqubawu:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:6543/postgres?pgbouncer=true"
+DIRECT_URL="postgresql://postgres.ulpjfiifqsbjlcqubawu:[YOUR-PASSWORD]@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
+
+# 4. Run migrations and seed
+npm run db:generate
 npm run db:migrate
 npm run db:seed
 ```
@@ -196,6 +200,7 @@ npm run build
 npx vercel --prod
 
 # 3. Set environment variables in dashboard
+REACT_APP_API_URL="https://your-backend-domain.com/api"
 ```
 
 ## 📁 Project Structure

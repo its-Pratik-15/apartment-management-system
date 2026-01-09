@@ -10,8 +10,10 @@ async function main() {
   const hashedPassword = await bcrypt.hash('password123', 12);
 
   // Create Secretary user
-  const secretary = await prisma.user.create({
-    data: {
+  const secretary = await prisma.user.upsert({
+    where: { email: 'secretary@apartment.com' },
+    update: {},
+    create: {
       email: 'secretary@apartment.com',
       password: hashedPassword,
       firstName: 'Admin',
@@ -22,8 +24,10 @@ async function main() {
   });
 
   // Create Owner users
-  const owner1 = await prisma.user.create({
-    data: {
+  const owner1 = await prisma.user.upsert({
+    where: { email: 'owner1@apartment.com' },
+    update: {},
+    create: {
       email: 'owner1@apartment.com',
       password: hashedPassword,
       firstName: 'John',
@@ -33,8 +37,10 @@ async function main() {
     }
   });
 
-  const owner2 = await prisma.user.create({
-    data: {
+  const owner2 = await prisma.user.upsert({
+    where: { email: 'owner2@apartment.com' },
+    update: {},
+    create: {
       email: 'owner2@apartment.com',
       password: hashedPassword,
       firstName: 'Sarah',
@@ -45,8 +51,10 @@ async function main() {
   });
 
   // Create Tenant users
-  const tenant1 = await prisma.user.create({
-    data: {
+  const tenant1 = await prisma.user.upsert({
+    where: { email: 'tenant1@apartment.com' },
+    update: {},
+    create: {
       email: 'tenant1@apartment.com',
       password: hashedPassword,
       firstName: 'Mike',
@@ -57,8 +65,10 @@ async function main() {
   });
 
   // Create Staff user
-  const staff = await prisma.user.create({
-    data: {
+  const staff = await prisma.user.upsert({
+    where: { email: 'staff@apartment.com' },
+    update: {},
+    create: {
       email: 'staff@apartment.com',
       password: hashedPassword,
       firstName: 'Tom',
@@ -69,8 +79,10 @@ async function main() {
   });
 
   // Create Guard user
-  const guard = await prisma.user.create({
-    data: {
+  const guard = await prisma.user.upsert({
+    where: { email: 'guard@apartment.com' },
+    update: {},
+    create: {
       email: 'guard@apartment.com',
       password: hashedPassword,
       firstName: 'Alex',
@@ -81,8 +93,10 @@ async function main() {
   });
 
   // Create Flats
-  const flat1 = await prisma.flat.create({
-    data: {
+  const flat1 = await prisma.flat.upsert({
+    where: { flatNumber: 'A101' },
+    update: {},
+    create: {
       flatNumber: 'A101',
       floor: 1,
       bedrooms: 2,
@@ -93,8 +107,10 @@ async function main() {
     }
   });
 
-  const flat2 = await prisma.flat.create({
-    data: {
+  const flat2 = await prisma.flat.upsert({
+    where: { flatNumber: 'A102' },
+    update: {},
+    create: {
       flatNumber: 'A102',
       floor: 1,
       bedrooms: 3,
@@ -105,17 +121,23 @@ async function main() {
     }
   });
 
-  // Create Lease for flat1
-  const lease1 = await prisma.lease.create({
-    data: {
-      startDate: new Date('2024-01-01'),
-      endDate: new Date('2024-12-31'),
-      monthlyRent: 25000.00,
-      securityDeposit: 50000.00,
-      flatId: flat1.id,
-      tenantId: tenant1.id
-    }
+  // Create Lease for flat1 (check if it already exists)
+  const existingLease = await prisma.lease.findFirst({
+    where: { flatId: flat1.id, tenantId: tenant1.id }
   });
+
+  if (!existingLease) {
+    const lease1 = await prisma.lease.create({
+      data: {
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2024-12-31'),
+        monthlyRent: 25000.00,
+        securityDeposit: 50000.00,
+        flatId: flat1.id,
+        tenantId: tenant1.id
+      }
+    });
+  }
 
   // Create sample bills
   await prisma.bill.create({
@@ -148,7 +170,7 @@ async function main() {
       title: 'Welcome to Apartment Management System',
       content: 'This is a sample notice for all residents. Please check the notice board regularly for updates.',
       isPinned: true,
-      targetRoles: 'OWNER,TENANT',
+      targetRoles: ['OWNER', 'TENANT'], // PostgreSQL array
       authorId: secretary.id
     }
   });
@@ -158,7 +180,7 @@ async function main() {
       title: 'Monthly Maintenance Schedule',
       content: 'Dear Residents, The monthly maintenance work will be carried out on the 15th of every month from 9 AM to 5 PM. This includes elevator servicing, water tank cleaning, and common area maintenance. Please plan accordingly.',
       isPinned: false,
-      targetRoles: 'OWNER,TENANT',
+      targetRoles: ['OWNER', 'TENANT'], // PostgreSQL array
       authorId: secretary.id
     }
   });
@@ -168,7 +190,7 @@ async function main() {
       title: 'Security Guidelines',
       content: 'For the safety of all residents, please ensure that you do not share the main gate access code with unauthorized persons. All visitors must be registered at the security desk. Emergency contact: +91-9876543200',
       isPinned: true,
-      targetRoles: 'OWNER,TENANT,GUARD',
+      targetRoles: ['OWNER', 'TENANT', 'GUARD'], // PostgreSQL array
       authorId: secretary.id
     }
   });
@@ -178,7 +200,7 @@ async function main() {
       title: 'Parking Rules Update',
       content: 'New parking rules are now in effect. Each flat is allocated one parking space. Visitor parking is available on a first-come, first-served basis. Unauthorized vehicles will be towed at owner\'s expense.',
       isPinned: false,
-      targetRoles: 'OWNER,TENANT',
+      targetRoles: ['OWNER', 'TENANT'], // PostgreSQL array
       authorId: secretary.id
     }
   });
@@ -188,7 +210,7 @@ async function main() {
       title: 'Staff Holiday Schedule',
       content: 'Please note that maintenance staff will be on holiday from December 25th to January 2nd. For emergency maintenance issues during this period, please contact the secretary office.',
       isPinned: false,
-      targetRoles: 'STAFF',
+      targetRoles: ['STAFF'], // PostgreSQL array
       authorId: secretary.id
     }
   });
