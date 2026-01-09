@@ -24,6 +24,7 @@ import Profile from './Profile';
 import FlatDetails from './FlatDetails';
 import FlatEdit from './FlatEdit';
 import LeaseDetails from './LeaseDetails';
+import IssueEdit from './IssueEdit';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -87,6 +88,9 @@ const Dashboard = () => {
         {/* Issues - accessible by all authenticated users */}
         <Route path="/issues" element={<Issues />} />
         <Route path="/issues/new" element={<NewIssue />} />
+        {(user?.role === 'SECRETARY' || user?.role === 'STAFF') && (
+          <Route path="/issues/:id/edit" element={<IssueEdit />} />
+        )}
         
         {/* Visitors - accessible by owners, tenants, and guards */}
         {(user?.role === 'OWNER' || user?.role === 'TENANT' || user?.role === 'GUARD' || user?.role === 'SECRETARY') && (

@@ -292,12 +292,6 @@ const Bills = () => {
                         Pay Now
                       </button>
                     )}
-                    <Link
-                      to={`/dashboard/bills/${bill.id}`}
-                      className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-                    >
-                      View
-                    </Link>
                   </div>
                 </div>
               </div>
