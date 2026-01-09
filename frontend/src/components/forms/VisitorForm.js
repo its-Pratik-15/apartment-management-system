@@ -12,18 +12,37 @@ const VisitorForm = ({ visitorId = null }) => {
     visitorName: '',
     visitorPhone: '',
     purpose: '',
-    expectedArrival: '',
     flatId: ''
   });
 
   useEffect(() => {
     if (user.role === 'GUARD') {
       fetchFlats();
+    } else if (user.role === 'OWNER' || user.role === 'TENANT') {
+      fetchUserFlat();
     }
     if (visitorId) {
       fetchVisitor();
     }
   }, [visitorId, user.role]);
+
+  const fetchUserFlat = async () => {
+    try {
+      if (user.role === 'OWNER') {
+        const response = await apiService.flats.getAll({ ownerId: user.id });
+        if (response.data.data.flats.length > 0) {
+          setFormData(prev => ({ ...prev, flatId: response.data.data.flats[0].id }));
+        }
+      } else if (user.role === 'TENANT') {
+        const response = await apiService.leases.getAll({ tenantId: user.id, isActive: true });
+        if (response.data.data.leases.length > 0) {
+          setFormData(prev => ({ ...prev, flatId: response.data.data.leases[0].flatId }));
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching user flat:', error);
+    }
+  };
 
   const fetchFlats = async () => {
     try {
@@ -42,7 +61,6 @@ const VisitorForm = ({ visitorId = null }) => {
         visitorName: visitor.visitorName,
         visitorPhone: visitor.visitorPhone || '',
         purpose: visitor.purpose,
-        expectedArrival: new Date(visitor.expectedArrival).toISOString().slice(0, 16),
         flatId: visitor.flatId
       });
     } catch (error) {
@@ -64,8 +82,7 @@ const VisitorForm = ({ visitorId = null }) => {
 
     try {
       const submitData = {
-        ...formData,
-        expectedArrival: new Date(formData.expectedArrival).toISOString()
+        ...formData
       };
 
       if (visitorId) {
@@ -139,20 +156,6 @@ const VisitorForm = ({ visitorId = null }) => {
             </div>
 
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Expected Arrival
-                </label>
-                <input
-                  type="datetime-local"
-                  name="expectedArrival"
-                  value={formData.expectedArrival}
-                  onChange={handleChange}
-                  required
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                />
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700">
                   {user.role === 'GUARD' ? 'Visiting Flat' : 'Your Flat'}

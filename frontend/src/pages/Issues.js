@@ -218,12 +218,6 @@ const Issues = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
-                    <Link
-                      to={`/dashboard/issues/${issue.id}`}
-                      className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-                    >
-                      View Details
-                    </Link>
                     {(user.role === 'SECRETARY' || user.role === 'STAFF') && (
                       <Link
                         to={`/dashboard/issues/${issue.id}/edit`}

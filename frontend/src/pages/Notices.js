@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
+import ConfirmDialog from '../components/ConfirmDialog';
 
 const Notices = () => {
   const { user } = useAuth();
@@ -12,6 +13,11 @@ const Notices = () => {
     page: 1,
     limit: 10,
     isPinned: ''
+  });
+  const [deleteDialog, setDeleteDialog] = useState({
+    isOpen: false,
+    noticeId: null,
+    noticeTitle: ''
   });
 
   useEffect(() => {
@@ -57,15 +63,26 @@ const Notices = () => {
   };
 
   const handleDeleteNotice = async (noticeId) => {
-    if (window.confirm('Are you sure you want to delete this notice?')) {
-      try {
-        await apiService.notices.delete(noticeId);
-        fetchNotices();
-      } catch (error) {
-        console.error('Error deleting notice:', error);
-        alert('Failed to delete notice. Please try again.');
-      }
+    setDeleteDialog({
+      isOpen: true,
+      noticeId,
+      noticeTitle: notices.find(n => n.id === noticeId)?.title || 'this notice'
+    });
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await apiService.notices.delete(deleteDialog.noticeId);
+      fetchNotices();
+      setDeleteDialog({ isOpen: false, noticeId: null, noticeTitle: '' });
+    } catch (error) {
+      console.error('Error deleting notice:', error);
+      alert('Failed to delete notice. Please try again.');
     }
+  };
+
+  const cancelDelete = () => {
+    setDeleteDialog({ isOpen: false, noticeId: null, noticeTitle: '' });
   };
 
   const getTargetRolesBadges = (targetRoles) => {
@@ -310,6 +327,18 @@ const Notices = () => {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteDialog.isOpen}
+        onClose={cancelDelete}
+        onConfirm={confirmDelete}
+        title="Delete Notice"
+        message={`Are you sure you want to delete "${deleteDialog.noticeTitle}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

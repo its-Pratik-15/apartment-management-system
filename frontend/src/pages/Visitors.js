@@ -11,7 +11,7 @@ const Visitors = () => {
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
-    status: ''
+    isApproved: ''
   });
 
   useEffect(() => {
@@ -46,13 +46,23 @@ const Visitors = () => {
     }));
   };
 
-  const handleUpdateStatus = async (visitorId, status) => {
+  const handleUpdateStatus = async (visitorId, isApproved) => {
     try {
-      await apiService.visitors.updateStatus(visitorId, { status });
+      await apiService.visitors.updateStatus(visitorId, { isApproved });
       fetchVisitors();
     } catch (error) {
       console.error('Error updating visitor status:', error);
       alert('Failed to update visitor status. Please try again.');
+    }
+  };
+
+  const handleRecordCheckIn = async (visitorId) => {
+    try {
+      await apiService.visitors.recordCheckIn(visitorId);
+      fetchVisitors();
+    } catch (error) {
+      console.error('Error recording check-in:', error);
+      alert('Failed to record visitor check-in. Please try again.');
     }
   };
 
@@ -66,26 +76,36 @@ const Visitors = () => {
     }
   };
 
-  const getStatusBadgeColor = (status) => {
-    const colors = {
-      PENDING: 'bg-yellow-100 text-yellow-800',
-      APPROVED: 'bg-green-100 text-green-800',
-      REJECTED: 'bg-red-100 text-red-800',
-      CHECKED_IN: 'bg-blue-100 text-blue-800',
-      CHECKED_OUT: 'bg-gray-100 text-gray-800'
-    };
-    return colors[status] || 'bg-gray-100 text-gray-800';
+  const getStatusBadgeColor = (visitor) => {
+    if (visitor.isApproved === null) {
+      return 'bg-yellow-100 text-yellow-800';
+    } else if (visitor.isApproved === true) {
+      if (visitor.outTime) {
+        return 'bg-gray-100 text-gray-800';
+      } else if (visitor.inTime) {
+        return 'bg-blue-100 text-blue-800';
+      } else {
+        return 'bg-green-100 text-green-800';
+      }
+    } else {
+      return 'bg-red-100 text-red-800';
+    }
   };
 
-  const getStatusText = (status) => {
-    const statusText = {
-      PENDING: 'Pending',
-      APPROVED: 'Approved',
-      REJECTED: 'Rejected',
-      CHECKED_IN: 'Checked In',
-      CHECKED_OUT: 'Checked Out'
-    };
-    return statusText[status] || status;
+  const getStatusText = (visitor) => {
+    if (visitor.isApproved === null) {
+      return 'Pending';
+    } else if (visitor.isApproved === true) {
+      if (visitor.outTime) {
+        return 'Checked Out';
+      } else if (visitor.inTime) {
+        return 'Checked In';
+      } else {
+        return 'Approved';
+      }
+    } else {
+      return 'Rejected';
+    }
   };
 
   if (loading) {
@@ -132,16 +152,14 @@ const Visitors = () => {
                 Status
               </label>
               <select
-                value={filters.status}
-                onChange={(e) => handleFilterChange('status', e.target.value)}
+                value={filters.isApproved}
+                onChange={(e) => handleFilterChange('isApproved', e.target.value)}
                 className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               >
                 <option value="">All Status</option>
-                <option value="PENDING">Pending</option>
-                <option value="APPROVED">Approved</option>
-                <option value="REJECTED">Rejected</option>
-                <option value="CHECKED_IN">Checked In</option>
-                <option value="CHECKED_OUT">Checked Out</option>
+                <option value="null">Pending</option>
+                <option value="true">Approved</option>
+                <option value="false">Rejected</option>
               </select>
             </div>
             
@@ -183,8 +201,8 @@ const Visitors = () => {
                         <div className="text-sm font-medium text-gray-900">
                           {visitor.visitorName}
                         </div>
-                        <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(visitor.status)}`}>
-                          {getStatusText(visitor.status)}
+                        <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(visitor)}`}>
+                          {getStatusText(visitor)}
                         </span>
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
@@ -206,17 +224,17 @@ const Visitors = () => {
                         )}
                       </div>
                       <div className="text-sm text-gray-500 mt-1">
-                        Expected: {new Date(visitor.expectedArrival).toLocaleString()}
-                        {visitor.actualArrival && (
+                        Created: {new Date(visitor.createdAt).toLocaleString()}
+                        {visitor.inTime && (
                           <>
                             <span className="mx-2">•</span>
-                            Arrived: {new Date(visitor.actualArrival).toLocaleString()}
+                            Arrived: {new Date(visitor.inTime).toLocaleString()}
                           </>
                         )}
-                        {visitor.actualDeparture && (
+                        {visitor.outTime && (
                           <>
                             <span className="mx-2">•</span>
-                            Departed: {new Date(visitor.actualDeparture).toLocaleString()}
+                            Departed: {new Date(visitor.outTime).toLocaleString()}
                           </>
                         )}
                       </div>
@@ -226,15 +244,15 @@ const Visitors = () => {
                     {/* Guard Actions */}
                     {user.role === 'GUARD' && (
                       <>
-                        {visitor.status === 'APPROVED' && !visitor.actualArrival && (
+                        {visitor.isApproved === true && !visitor.inTime && (
                           <button
-                            onClick={() => handleUpdateStatus(visitor.id, 'CHECKED_IN')}
+                            onClick={() => handleRecordCheckIn(visitor.id)}
                             className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                           >
                             Check In
                           </button>
                         )}
-                        {visitor.status === 'CHECKED_IN' && !visitor.actualDeparture && (
+                        {visitor.isApproved === true && visitor.inTime && !visitor.outTime && (
                           <button
                             onClick={() => handleRecordExit(visitor.id)}
                             className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -246,16 +264,16 @@ const Visitors = () => {
                     )}
                     
                     {/* Host Actions */}
-                    {(user.role === 'OWNER' || user.role === 'TENANT') && visitor.host?.id === user.id && visitor.status === 'PENDING' && (
+                    {(user.role === 'OWNER' || user.role === 'TENANT') && visitor.isApproved === null && (
                       <>
                         <button
-                          onClick={() => handleUpdateStatus(visitor.id, 'APPROVED')}
+                          onClick={() => handleUpdateStatus(visitor.id, true)}
                           className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
                         >
                           Approve
                         </button>
                         <button
-                          onClick={() => handleUpdateStatus(visitor.id, 'REJECTED')}
+                          onClick={() => handleUpdateStatus(visitor.id, false)}
                           className="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                         >
                           Reject
