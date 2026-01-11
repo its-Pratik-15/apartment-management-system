@@ -409,13 +409,6 @@ const Visitors = () => {
                         </button>
                       </>
                     )}
-                    
-                    <Link
-                      to={`/dashboard/visitors/${visitor.id}`}
-                      className="text-blue-600 hover:text-blue-500 text-sm font-medium"
-                    >
-                      View Details
-                    </Link>
                   </div>
                 </div>
               </div>
