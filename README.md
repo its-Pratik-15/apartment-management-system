@@ -108,7 +108,10 @@
 
 ### Authentication & UI
 ![Login Page](./docs/screenshots/login-page.png)
-*Login & Registration - Secure authentication with demo credentials*
+*Login Page - Secure authentication with demo credentials*
+
+![Registration Page](./docs/screenshots/register-page.png)
+*Registration Page - User account creation with role selection*
 
 ![Mobile Responsive](./docs/screenshots/mobile-responsive.png)
 *Mobile Responsive Design - Optimized for all device sizes*
