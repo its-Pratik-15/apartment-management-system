@@ -96,27 +96,29 @@ const StaffDashboard = () => {
               <div className="space-y-3">
                 {recentIssues.map((issue) => (
                   <div key={issue.id} className="border border-gray-200 rounded-lg p-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-1">
-                          <h4 className="text-sm font-medium text-gray-900 truncate">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1 min-w-0 pr-4">
+                        <div className="flex items-start flex-wrap gap-2 mb-2">
+                          <h4 className="text-sm font-medium text-gray-900 break-words">
                             {issue.title}
                           </h4>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(issue.status)}`}>
-                            {issue.status.replace('_', ' ')}
-                          </span>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityBadgeColor(issue.priority)}`}>
-                            {issue.priority}
-                          </span>
+                          <div className="flex gap-1">
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeColor(issue.status)}`}>
+                              {issue.status.replace('_', ' ')}
+                            </span>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${getPriorityBadgeColor(issue.priority)}`}>
+                              {issue.priority}
+                            </span>
+                          </div>
                         </div>
-                        <p className="text-sm text-gray-500 truncate">
+                        <p className="text-sm text-gray-500 break-words mb-1">
                           {issue.description}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-gray-400">
                           {issue.category} • {new Date(issue.createdAt).toLocaleDateString()}
                         </p>
                       </div>
-                      <div className="ml-4">
+                      <div className="flex-shrink-0">
                         <Link
                           to={`/dashboard/issues/${issue.id}/edit`}
                           className="text-sm font-medium text-blue-600 hover:text-blue-500"
