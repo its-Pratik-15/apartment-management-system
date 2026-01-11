@@ -4,16 +4,45 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Starting database seed...');
+  console.log('Starting database seed...');
+  console.log('Clearing existing data...');
+
+  // Clear existing data in correct order (respecting foreign key constraints)
+  await prisma.visitorLog.deleteMany({});
+  await prisma.issue.deleteMany({});
+  await prisma.notice.deleteMany({});
+  await prisma.bill.deleteMany({});
+  await prisma.lease.deleteMany({});
+  await prisma.flat.deleteMany({});
+  await prisma.user.deleteMany({});
+
+  console.log('Previous data cleared successfully!');
+  console.log('Creating fresh data with current dates...');
+
+  // Get current date for realistic data
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+  
+  // Calculate dates for realistic scenarios
+  const thisMonthStart = new Date(currentYear, currentMonth, 1);
+  const thisMonthEnd = new Date(currentYear, currentMonth + 1, 0);
+  const nextMonthStart = new Date(currentYear, currentMonth + 1, 1);
+  const lastMonthStart = new Date(currentYear, currentMonth - 1, 1);
+  const leaseEndDate = new Date(currentYear + 1, currentMonth, thisMonthEnd.getDate());
+  
+  // Recent dates for activity
+  const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+  const twoDaysAgo = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000);
+  const threeDaysAgo = new Date(now.getTime() - 3 * 24 * 60 * 60 * 1000);
+  const oneWeekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
 
   // Hash password for all users
   const hashedPassword = await bcrypt.hash('password123', 12);
 
   // Create Secretary user
-  const secretary = await prisma.user.upsert({
-    where: { email: 'secretary@apartment.com' },
-    update: {},
-    create: {
+  const secretary = await prisma.user.create({
+    data: {
       email: 'secretary@apartment.com',
       password: hashedPassword,
       firstName: 'Admin',
@@ -24,10 +53,8 @@ async function main() {
   });
 
   // Create Owner users
-  const owner1 = await prisma.user.upsert({
-    where: { email: 'owner1@apartment.com' },
-    update: {},
-    create: {
+  const owner1 = await prisma.user.create({
+    data: {
       email: 'owner1@apartment.com',
       password: hashedPassword,
       firstName: 'John',
@@ -37,10 +64,8 @@ async function main() {
     }
   });
 
-  const owner2 = await prisma.user.upsert({
-    where: { email: 'owner2@apartment.com' },
-    update: {},
-    create: {
+  const owner2 = await prisma.user.create({
+    data: {
       email: 'owner2@apartment.com',
       password: hashedPassword,
       firstName: 'Sarah',
@@ -51,10 +76,8 @@ async function main() {
   });
 
   // Create Tenant users
-  const tenant1 = await prisma.user.upsert({
-    where: { email: 'tenant1@apartment.com' },
-    update: {},
-    create: {
+  const tenant1 = await prisma.user.create({
+    data: {
       email: 'tenant1@apartment.com',
       password: hashedPassword,
       firstName: 'Mike',
@@ -65,10 +88,8 @@ async function main() {
   });
 
   // Create Staff user
-  const staff = await prisma.user.upsert({
-    where: { email: 'staff@apartment.com' },
-    update: {},
-    create: {
+  const staff = await prisma.user.create({
+    data: {
       email: 'staff@apartment.com',
       password: hashedPassword,
       firstName: 'Tom',
@@ -79,10 +100,8 @@ async function main() {
   });
 
   // Create Guard user
-  const guard = await prisma.user.upsert({
-    where: { email: 'guard@apartment.com' },
-    update: {},
-    create: {
+  const guard = await prisma.user.create({
+    data: {
       email: 'guard@apartment.com',
       password: hashedPassword,
       firstName: 'Alex',
@@ -93,10 +112,8 @@ async function main() {
   });
 
   // Create Flats
-  const flat1 = await prisma.flat.upsert({
-    where: { flatNumber: 'A101' },
-    update: {},
-    create: {
+  const flat1 = await prisma.flat.create({
+    data: {
       flatNumber: 'A101',
       floor: 1,
       bedrooms: 2,
@@ -107,10 +124,8 @@ async function main() {
     }
   });
 
-  const flat2 = await prisma.flat.upsert({
-    where: { flatNumber: 'A102' },
-    update: {},
-    create: {
+  const flat2 = await prisma.flat.create({
+    data: {
       flatNumber: 'A102',
       floor: 1,
       bedrooms: 3,
@@ -121,34 +136,29 @@ async function main() {
     }
   });
 
-  // Create Lease for flat1 (check if it already exists)
-  const existingLease = await prisma.lease.findFirst({
-    where: { flatId: flat1.id, tenantId: tenant1.id }
+  // Create active lease with current dates
+  const lease1 = await prisma.lease.create({
+    data: {
+      startDate: thisMonthStart,
+      endDate: leaseEndDate,
+      monthlyRent: 25000.00,
+      securityDeposit: 50000.00,
+      flatId: flat1.id,
+      tenantId: tenant1.id
+    }
   });
 
-  if (!existingLease) {
-    const lease1 = await prisma.lease.create({
-      data: {
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-12-31'),
-        monthlyRent: 25000.00,
-        securityDeposit: 50000.00,
-        flatId: flat1.id,
-        tenantId: tenant1.id
-      }
-    });
-  }
-
-  // Create sample bills
+  // Create current month bills with realistic due dates
   await prisma.bill.create({
     data: {
       billType: 'RENT',
       amount: 25000.00,
-      dueDate: new Date('2024-02-01'),
+      dueDate: new Date(currentYear, currentMonth, 5), // Due 5th of current month
       status: 'DUE',
-      description: 'Monthly rent for January 2024',
+      description: `Monthly rent for ${thisMonthStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`,
       flatId: flat1.id,
-      userId: tenant1.id
+      userId: tenant1.id,
+      createdAt: thisMonthStart
     }
   });
 
@@ -156,32 +166,39 @@ async function main() {
     data: {
       billType: 'MAINTENANCE',
       amount: 1500.00,
-      dueDate: new Date('2024-02-01'),
-      status: 'DUE',
+      dueDate: new Date(currentYear, currentMonth, 10), // Due 10th of current month
+      status: 'PAID',
       description: 'Monthly maintenance charges',
       flatId: flat1.id,
-      userId: owner1.id
+      userId: owner1.id,
+      createdAt: thisMonthStart,
+      paidDate: twoDaysAgo
     }
   });
 
-  // Create sample notices
+  // Create overdue bill from last month
+  await prisma.bill.create({
+    data: {
+      billType: 'ELECTRICITY',
+      amount: 3200.00,
+      dueDate: new Date(currentYear, currentMonth - 1, 15),
+      status: 'OVERDUE',
+      description: 'Electricity and water charges',
+      flatId: flat2.id,
+      userId: owner2.id,
+      createdAt: lastMonthStart
+    }
+  });
+
+  // Create recent notices with current dates
   await prisma.notice.create({
     data: {
       title: 'Welcome to Apartment Management System',
       content: 'This is a sample notice for all residents. Please check the notice board regularly for updates.',
       isPinned: true,
-      targetRoles: ['OWNER', 'TENANT'], // PostgreSQL array
-      authorId: secretary.id
-    }
-  });
-
-  await prisma.notice.create({
-    data: {
-      title: 'Monthly Maintenance Schedule',
-      content: 'Dear Residents, The monthly maintenance work will be carried out on the 15th of every month from 9 AM to 5 PM. This includes elevator servicing, water tank cleaning, and common area maintenance. Please plan accordingly.',
-      isPinned: false,
-      targetRoles: ['OWNER', 'TENANT'], // PostgreSQL array
-      authorId: secretary.id
+      targetRoles: ['OWNER', 'TENANT'],
+      authorId: secretary.id,
+      createdAt: oneWeekAgo
     }
   });
 
@@ -190,18 +207,9 @@ async function main() {
       title: 'Security Guidelines',
       content: 'For the safety of all residents, please ensure that you do not share the main gate access code with unauthorized persons. All visitors must be registered at the security desk. Emergency contact: +91-9876543200',
       isPinned: true,
-      targetRoles: ['OWNER', 'TENANT', 'GUARD'], // PostgreSQL array
-      authorId: secretary.id
-    }
-  });
-
-  await prisma.notice.create({
-    data: {
-      title: 'Parking Rules Update',
-      content: 'New parking rules are now in effect. Each flat is allocated one parking space. Visitor parking is available on a first-come, first-served basis. Unauthorized vehicles will be towed at owner\'s expense.',
-      isPinned: false,
-      targetRoles: ['OWNER', 'TENANT'], // PostgreSQL array
-      authorId: secretary.id
+      targetRoles: ['OWNER', 'TENANT', 'GUARD'],
+      authorId: secretary.id,
+      createdAt: threeDaysAgo
     }
   });
 
@@ -210,20 +218,22 @@ async function main() {
       title: 'Staff Holiday Schedule',
       content: 'Please note that maintenance staff will be on holiday from December 25th to January 2nd. For emergency maintenance issues during this period, please contact the secretary office.',
       isPinned: false,
-      targetRoles: ['STAFF'], // PostgreSQL array
-      authorId: secretary.id
+      targetRoles: ['STAFF'],
+      authorId: secretary.id,
+      createdAt: yesterday
     }
   });
 
-  // Create sample issues
+  // Create recent issues with current dates
   await prisma.issue.create({
     data: {
-      title: 'Elevator Maintenance Required',
-      description: 'The elevator in Block A is making unusual noises and needs maintenance.',
-      category: 'Maintenance',
-      priority: 'HIGH',
+      title: 'Parking Light Not Working',
+      description: 'The light in parking slot P-15 is not working. It\'s difficult to park in the evening.',
+      category: 'Electrical',
+      priority: 'MEDIUM',
       status: 'OPEN',
-      reporterId: tenant1.id
+      reporterId: tenant1.id,
+      createdAt: yesterday
     }
   });
 
@@ -234,44 +244,48 @@ async function main() {
       category: 'Plumbing',
       priority: 'URGENT',
       status: 'OPEN',
-      reporterId: owner1.id
+      reporterId: owner1.id,
+      createdAt: twoDaysAgo
     }
   });
 
   await prisma.issue.create({
     data: {
-      title: 'Parking Light Not Working',
-      description: 'The light in parking slot P-15 is not working. It\'s difficult to park in the evening.',
-      category: 'Electrical',
-      priority: 'MEDIUM',
-      status: 'OPEN',
+      title: 'Elevator Maintenance Required',
+      description: 'The elevator in Block A is making unusual noises and needs maintenance.',
+      category: 'Maintenance',
+      priority: 'HIGH',
+      status: 'IN_PROGRESS',
       reporterId: owner2.id,
-      resolution: 'Light bulb replaced and tested'
+      createdAt: threeDaysAgo
     }
   });
 
   await prisma.issue.create({
     data: {
-      title: 'Noise Complaint',
-      description: 'Loud music from flat A102 during night hours. Please address this issue.',
-      category: 'Noise',
+      title: 'Gym Equipment Repair',
+      description: 'Treadmill in the gym is not working properly. Display shows error code.',
+      category: 'Maintenance',
       priority: 'LOW',
-      status: 'OPEN',
-      reporterId: tenant1.id
+      status: 'RESOLVED',
+      reporterId: tenant1.id,
+      createdAt: oneWeekAgo,
+      resolution: 'Treadmill serviced and calibrated. Working normally now.'
     }
   });
 
-  // Create sample visitor logs
+  // Create recent visitor logs with current dates
   await prisma.visitorLog.create({
     data: {
       visitorName: 'Rahul Sharma',
       visitorPhone: '+91-9876543220',
       purpose: 'Family Visit',
-      inTime: new Date('2024-02-01T14:15:00'),
-      outTime: new Date('2024-02-01T18:30:00'),
+      inTime: new Date(yesterday.getTime() + 14 * 60 * 60 * 1000), // 2 PM yesterday
+      outTime: new Date(yesterday.getTime() + 18.5 * 60 * 60 * 1000), // 6:30 PM yesterday
       isApproved: true,
       flatId: flat1.id,
-      guardId: guard.id
+      guardId: guard.id,
+      createdAt: new Date(yesterday.getTime() + 13.5 * 60 * 60 * 1000) // 1:30 PM yesterday
     }
   });
 
@@ -280,9 +294,10 @@ async function main() {
       visitorName: 'Priya Patel',
       visitorPhone: '+91-9876543221',
       purpose: 'Delivery',
-      isApproved: null,
+      isApproved: null, // Pending approval
       flatId: flat2.id,
-      guardId: guard.id
+      guardId: guard.id,
+      createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000) // 2 hours ago
     }
   });
 
@@ -291,26 +306,49 @@ async function main() {
       visitorName: 'Amit Kumar',
       visitorPhone: '+91-9876543222',
       purpose: 'Maintenance Work',
-      inTime: new Date('2024-02-02T09:10:00'),
+      inTime: new Date(now.getTime() - 4 * 60 * 60 * 1000), // 4 hours ago
       isApproved: true,
       flatId: flat1.id,
-      guardId: guard.id
+      guardId: guard.id,
+      createdAt: new Date(now.getTime() - 5 * 60 * 60 * 1000) // 5 hours ago
     }
   });
 
-  console.log('✅ Database seeded successfully!');
-  console.log('📧 Login credentials:');
+  // Create a visitor currently inside (checked in but not out)
+  await prisma.visitorLog.create({
+    data: {
+      visitorName: 'Neha Singh',
+      visitorPhone: '+91-9876543223',
+      purpose: 'Business Meeting',
+      inTime: new Date(now.getTime() - 1 * 60 * 60 * 1000), // 1 hour ago
+      isApproved: true,
+      flatId: flat2.id,
+      guardId: guard.id,
+      createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000) // 2 hours ago
+    }
+  });
+
+  console.log('Database seeded successfully with current dates!');
+  console.log('Data created for:', now.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  }));
+  console.log('Login credentials:');
   console.log('   Secretary: secretary@apartment.com / password123');
   console.log('   Owner 1: owner1@apartment.com / password123');
   console.log('   Owner 2: owner2@apartment.com / password123');
   console.log('   Tenant: tenant1@apartment.com / password123');
   console.log('   Staff: staff@apartment.com / password123');
   console.log('   Guard: guard@apartment.com / password123');
+  console.log('');
+  console.log('Perfect for interview demonstration!');
 }
 
 main()
   .catch((e) => {
-    console.error('❌ Error seeding database:', e);
+    console.error('Error seeding database:', e);
     process.exit(1);
   })
   .finally(async () => {
