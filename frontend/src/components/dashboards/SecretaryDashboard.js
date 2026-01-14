@@ -53,7 +53,7 @@ const SecretaryDashboard = () => {
           ...recentBills.data.data.bills.map(bill => ({
             type: 'bill',
             title: `${bill.billType} bill created`,
-            description: `$${bill.amount} for ${bill.flat.flatNumber}`,
+            description: `₹${bill.amount} for ${bill.flat.flatNumber}`,
             time: new Date(bill.createdAt).toLocaleDateString(),
             status: bill.status
           })),

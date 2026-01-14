@@ -1,17 +1,22 @@
 import React, { useState } from 'react';
 import { Navigate, useLocation, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import PasswordRequirements, { validatePassword } from '../components/PasswordRequirements';
 import { showError, showSuccess } from '../components/ErrorMessage';
 
-const Login = () => {
+const Register = () => {
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    firstName: '',
+    lastName: '',
+    phone: '',
+    role: 'OWNER'
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login, isAuthenticated } = useAuth();
+  const { register, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -35,11 +40,19 @@ const Login = () => {
     setLoading(true);
     setError('');
 
+    // Validate password for registration
+    const passwordValidation = validatePassword(formData.password);
+    if (!passwordValidation.isValid) {
+      setError(passwordValidation.message);
+      setLoading(false);
+      return;
+    }
+
     try {
-      const result = await login(formData.email, formData.password);
+      const result = await register(formData);
       if (result.success) {
-        showSuccess('Welcome back!');
-        navigate(from, { replace: true });
+        showSuccess('Account created successfully! Please sign in.');
+        navigate('/login');
       } else {
         setError(result.message);
       }
@@ -51,20 +64,6 @@ const Login = () => {
     }
   };
 
-  // Demo credentials for easy testing
-  const demoCredentials = [
-    { role: 'Secretary', email: 'secretary@apartment.com', password: 'password123' },
-    { role: 'Owner', email: 'owner1@apartment.com', password: 'password123' },
-    { role: 'Tenant', email: 'tenant1@apartment.com', password: 'password123' },
-    { role: 'Staff', email: 'staff@apartment.com', password: 'password123' },
-    { role: 'Guard', email: 'guard@apartment.com', password: 'password123' },
-  ];
-
-  const fillDemoCredentials = (email, password) => {
-    setFormData({ email, password });
-    setError('');
-  };
-
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -73,20 +72,84 @@ const Login = () => {
           <div>
             <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-blue-100">
               <svg className="h-8 w-8 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
               </svg>
             </div>
             <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-              Apartment Management System
+              Create your account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              Sign in to your account
+              Join Apartment Management System today
             </p>
           </div>
 
-        {/* Login Form */}
+        {/* Register Form */}
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="rounded-md shadow-sm space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  name="firstName"
+                  type="text"
+                  required
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="First Name"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  name="lastName"
+                  type="text"
+                  required
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                  placeholder="Last Name"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
+                Phone Number
+              </label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                placeholder="Phone Number (Optional)"
+                value={formData.phone}
+                onChange={handleChange}
+              />
+            </div>
+            <div>
+              <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                Role
+              </label>
+              <select
+                id="role"
+                name="role"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                value={formData.role}
+                onChange={handleChange}
+              >
+                <option value="OWNER">Owner</option>
+                <option value="TENANT">Tenant</option>
+                <option value="STAFF">Staff</option>
+                <option value="GUARD">Guard</option>
+              </select>
+            </div>
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email Address
@@ -111,12 +174,16 @@ const Login = () => {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete="current-password"
+                autoComplete="new-password"
                 required
                 className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 placeholder="Password"
                 value={formData.password}
                 onChange={handleChange}
+              />
+              <PasswordRequirements 
+                password={formData.password} 
+                showRequirements={true}
               />
             </div>
           </div>
@@ -150,53 +217,27 @@ const Login = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Signing in...
+                  Creating account...
                 </div>
               ) : (
-                'Sign in'
+                'Create Account'
               )}
             </button>
           </div>
 
           <div className="text-center">
             <Link
-              to="/register"
+              to="/login"
               className="text-sm text-blue-600 hover:text-blue-500"
             >
-              Don't have an account? Register
+              Already have an account? Sign in
             </Link>
           </div>
         </form>
-
-        {/* Demo Credentials */}
-        <div className="mt-6">
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
-            </div>
-            <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-gray-50 text-gray-500">Demo Credentials</span>
-            </div>
-          </div>
-
-          <div className="mt-4 grid grid-cols-1 gap-2">
-            {demoCredentials.map((cred, index) => (
-              <button
-                key={index}
-                type="button"
-                onClick={() => fillDemoCredentials(cred.email, cred.password)}
-                className="w-full text-left px-3 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <span className="font-medium text-gray-900">{cred.role}</span>
-                <span className="text-gray-500 ml-2">({cred.email})</span>
-              </button>
-            ))}
-          </div>
-        </div>
         </div>
       </div>
       
-      {/* Footer for login page */}
+      {/* Footer */}
       <footer className="bg-gray-900 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
@@ -235,4 +276,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

@@ -87,6 +87,18 @@
 ![Secretary Dashboard](./docs/screenshots/secretary-dashboard.png)
 *Secretary Dashboard - Complete system overview with analytics and quick actions*
 
+![Staff Dashboard](./docs/screenshots/staff-dashboard.png)
+*Staff Dashboard - Issue management and maintenance tracking*
+
+![Owner Dashboard](./docs/screenshots/owner-dashboard.png)
+*Owner Dashboard - Property management and financial overview*
+
+![Tenant Dashboard](./docs/screenshots/tenant-dashboard.png)
+*Tenant Dashboard - Bills, visitors, and lease information*
+
+![Guard Dashboard](./docs/screenshots/guard-dashboard.png)
+*Guard Dashboard - Visitor entry/exit management and security monitoring*
+
 ![User Management](./docs/screenshots/user-management.png)
 *User Management - Role-based user administration with filtering*
 
@@ -97,6 +109,9 @@
 ![Flat Management](./docs/screenshots/flat-management.png)
 *Flat Management - Property overview with occupancy status and professional footer*
 
+![Lease Management](./docs/screenshots/lease-management.png)
+*Lease Management - Rental agreements and expiration tracking*
+
 ![Visitor Management](./docs/screenshots/visitor-management.png)
 *Visitor Management - Entry/exit tracking with approval workflow and debounced search*
 
@@ -106,11 +121,27 @@
 ![Issue Tracking](./docs/screenshots/issue-tracking.png)
 *Issue Management - Complete lifecycle from report to resolution*
 
+### Forms & User Interface
+![Create Notice Form](./docs/screenshots/create-notice-form.png)
+*Notice Creation Form - Role-based targeting and content management*
+
+![Create Bill Form](./docs/screenshots/create-bill-form.png)
+*Bill Creation Form - Automated assignment and billing management*
+
+![Issue Report Form](./docs/screenshots/issue-report-form.png)
+*Issue Reporting Form - Category-based issue submission with priority levels*
+
+![Visitor Request Form](./docs/screenshots/visitor-request-form.png)
+*Visitor Request Form - Guest registration and approval workflow*
+
+![Profile Page](./docs/screenshots/profile-page.png)
+*User Profile Management - Personal information and account settings*
+
 ### Authentication & UI
 ![Login Page](./docs/screenshots/login-page.png)
 *Login Page - Secure authentication with demo credentials*
 
-![Registration Page](./docs/screenshots/register-page.png)
+![Registration Page](./docs/screenshots/registration-page.png)
 *Registration Page - User account creation with role selection*
 
 ![Mobile Responsive](./docs/screenshots/mobile-responsive.png)

@@ -133,7 +133,7 @@ const Footer = () => {
               </div>
             </div>
             <div className="text-sm text-gray-400">
-              Built with ❤️ by{' '}
+              Built by{' '}
               <a 
                 href="https://github.com/its-Pratik-15" 
                 target="_blank" 

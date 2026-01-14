@@ -5,7 +5,10 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
+import Register from './pages/Register';
+import About from './pages/About';
 import Dashboard from './pages/Dashboard';
+import LandingPage from './pages/LandingPage';
 import './App.css';
 
 function App() {
@@ -16,7 +19,10 @@ function App() {
           <div className="min-h-screen bg-gray-50">
             <Routes>
               {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/about" element={<About />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               
               {/* Protected Routes */}
               <Route 
@@ -28,8 +34,8 @@ function App() {
                 } 
               />
               
-              {/* Default redirect */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              {/* Fallback */}
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             
             {/* Toast notifications */}
