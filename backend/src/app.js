@@ -28,7 +28,9 @@ const corsOptions = {
       'http://localhost:3001',
       'http://127.0.0.1:3000',
       'http://127.0.0.1:3001',
-      process.env.FRONTEND_URL
+      process.env.FRONTEND_URL,
+      process.env.FRONTEND_PRODUCTION_URL,
+      process.env.FRONTEND_PREVIEW_URL
     ].filter(Boolean);
     
     if (allowedOrigins.indexOf(origin) !== -1) {
@@ -37,6 +39,7 @@ const corsOptions = {
       // Only log CORS blocks in development
       if (process.env.NODE_ENV === 'development') {
         console.log('CORS blocked origin:', origin);
+        console.log('Allowed origins:', allowedOrigins);
       }
       callback(new Error('Not allowed by CORS'));
     }
@@ -80,7 +83,9 @@ app.use((req, res, next) => {
     'http://localhost:3001',
     'http://127.0.0.1:3000',
     'http://127.0.0.1:3001',
-    process.env.FRONTEND_URL
+    process.env.FRONTEND_URL,
+    process.env.FRONTEND_PRODUCTION_URL,
+    process.env.FRONTEND_PREVIEW_URL
   ].filter(Boolean);
   
   if (allowedOrigins.includes(origin)) {
