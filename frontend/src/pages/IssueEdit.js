@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
-import { useAuth } from '../contexts/AuthContext';
 import { showSuccess, showError, showLoading, dismissToast } from '../components/ErrorMessage';
 
 const IssueEdit = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
   const [issue, setIssue] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

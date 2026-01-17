@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
-import { showError, showWarning } from '../ErrorMessage';
+import { showError } from '../ErrorMessage';
 
 const OwnerDashboard = () => {
   const { user } = useAuth();
@@ -19,7 +19,7 @@ const OwnerDashboard = () => {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [flatsRes, billsRes, issuesRes, visitorsRes, leasesRes] = await Promise.all([
+        const [flatsRes, , issuesRes, visitorsRes, leasesRes] = await Promise.all([
           apiService.flats.getAll({ ownerId: user.id }),
           apiService.bills.getAll({ userId: user.id, limit: 1 }),
           apiService.issues.getAll({ reporterId: user.id, limit: 1 }),

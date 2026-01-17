@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -17,12 +17,7 @@ const Bills = () => {
     billType: ''
   });
 
-  useEffect(() => {
-    fetchBills();
-    fetchSummary();
-  }, [filters]);
-
-  const fetchBills = async () => {
+  const fetchBills = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.bills.getAll(filters);
@@ -34,9 +29,9 @@ const Bills = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
 
-  const fetchSummary = async () => {
+  const fetchSummary = useCallback(async () => {
     try {
       const response = await apiService.bills.getSummary();
       setSummary(response.data.data.summary);
@@ -44,7 +39,12 @@ const Bills = () => {
       console.error('Error fetching summary:', error);
       showWarning('Could not load bill summary.');
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchBills();
+    fetchSummary();
+  }, [fetchBills, fetchSummary]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({

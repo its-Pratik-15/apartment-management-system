@@ -89,24 +89,40 @@ const Footer = () => {
               </h4>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                  <button 
+                    type="button"
+                    className="text-gray-300 hover:text-white transition-colors text-left"
+                    onClick={() => console.log('Help Center clicked')}
+                  >
                     Help Center
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                  <button 
+                    type="button"
+                    className="text-gray-300 hover:text-white transition-colors text-left"
+                    onClick={() => console.log('Documentation clicked')}
+                  >
                     Documentation
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                  <button 
+                    type="button"
+                    className="text-gray-300 hover:text-white transition-colors text-left"
+                    onClick={() => console.log('Contact Support clicked')}
+                  >
                     Contact Support
-                  </a>
+                  </button>
                 </li>
                 <li>
-                  <a href="#" className="text-gray-300 hover:text-white transition-colors">
+                  <button 
+                    type="button"
+                    className="text-gray-300 hover:text-white transition-colors text-left"
+                    onClick={() => console.log('System Status clicked')}
+                  >
                     System Status
-                  </a>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -121,15 +137,27 @@ const Footer = () => {
                 © {currentYear} Apartment Management System. All rights reserved.
               </p>
               <div className="flex space-x-6 text-sm text-gray-400">
-                <a href="#" className="hover:text-white transition-colors">
+                <button 
+                  type="button"
+                  className="hover:text-white transition-colors"
+                  onClick={() => console.log('Privacy Policy clicked')}
+                >
                   Privacy Policy
-                </a>
-                <a href="#" className="hover:text-white transition-colors">
+                </button>
+                <button 
+                  type="button"
+                  className="hover:text-white transition-colors"
+                  onClick={() => console.log('Terms of Service clicked')}
+                >
                   Terms of Service
-                </a>
-                <a href="#" className="hover:text-white transition-colors">
+                </button>
+                <button 
+                  type="button"
+                  className="hover:text-white transition-colors"
+                  onClick={() => console.log('Cookie Policy clicked')}
+                >
                   Cookie Policy
-                </a>
+                </button>
               </div>
             </div>
             <div className="text-sm text-gray-400">

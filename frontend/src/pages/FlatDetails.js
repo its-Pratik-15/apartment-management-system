@@ -1,19 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 const FlatDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [flat, setFlat] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchFlatDetails();
-  }, [id]);
-
-  const fetchFlatDetails = async () => {
+  const fetchFlatDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.flats.getById(id);
@@ -24,7 +19,11 @@ const FlatDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchFlatDetails();
+  }, [fetchFlatDetails]);
 
   const getOccupancyBadgeColor = (status) => {
     const colors = {

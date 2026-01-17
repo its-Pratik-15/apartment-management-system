@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 const LeaseDetails = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [lease, setLease] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');

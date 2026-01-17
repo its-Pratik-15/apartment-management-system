@@ -117,15 +117,27 @@ const PublicLayout = ({ children }) => {
                 © 2024 ApartmentPro. All rights reserved.
               </p>
               <div className="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                <button 
+                  type="button"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                  onClick={() => console.log('Privacy Policy clicked')}
+                >
                   Privacy Policy
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                </button>
+                <button 
+                  type="button"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                  onClick={() => console.log('Terms of Service clicked')}
+                >
                   Terms of Service
-                </a>
-                <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">
+                </button>
+                <button 
+                  type="button"
+                  className="text-gray-400 hover:text-white text-sm transition-colors"
+                  onClick={() => console.log('Cookie Policy clicked')}
+                >
                   Cookie Policy
-                </a>
+                </button>
               </div>
             </div>
           </div>
