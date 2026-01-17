@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -16,11 +16,7 @@ const Issues = () => {
     priority: ''
   });
 
-  useEffect(() => {
-    fetchIssues();
-  }, [filters]);
-
-  const fetchIssues = async () => {
+  const fetchIssues = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.issues.getAll(filters);
@@ -32,7 +28,11 @@ const Issues = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    fetchIssues();
+  }, [fetchIssues]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({

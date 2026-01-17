@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,11 +21,7 @@ const Notices = () => {
     noticeTitle: ''
   });
 
-  useEffect(() => {
-    fetchNotices();
-  }, [filters]);
-
-  const fetchNotices = async () => {
+  const fetchNotices = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.notices.getAll(filters);
@@ -37,7 +33,11 @@ const Notices = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    fetchNotices();
+  }, [fetchNotices]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({

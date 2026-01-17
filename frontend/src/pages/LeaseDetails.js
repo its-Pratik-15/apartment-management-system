@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 
@@ -9,11 +9,7 @@ const LeaseDetails = () => {
   const [error, setError] = useState('');
   const [terminating, setTerminating] = useState(false);
 
-  useEffect(() => {
-    fetchLeaseDetails();
-  }, [id]);
-
-  const fetchLeaseDetails = async () => {
+  const fetchLeaseDetails = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.leases.getById(id);
@@ -24,7 +20,11 @@ const LeaseDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    fetchLeaseDetails();
+  }, [fetchLeaseDetails]);
 
   const getLeaseStatus = (lease) => {
     const now = new Date();

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../components/ErrorMessage';
@@ -19,11 +19,7 @@ const Leases = () => {
     status: ''
   });
 
-  useEffect(() => {
-    fetchLeases();
-  }, [filters]);
-
-  const fetchLeases = async () => {
+  const fetchLeases = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.leases.getAll(filters);
@@ -62,7 +58,11 @@ const Leases = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    fetchLeases();
+  }, [fetchLeases]);
 
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({

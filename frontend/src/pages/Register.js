@@ -253,20 +253,18 @@ const Register = () => {
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-gray-300">
               <span>© {new Date().getFullYear()} All rights reserved.</span>
               <div className="flex space-x-4">
-                <button 
-                  type="button"
+                <Link 
+                  to="/privacy-policy"
                   className="hover:text-white transition-colors"
-                  onClick={() => console.log('Privacy clicked')}
                 >
                   Privacy
-                </button>
-                <button 
-                  type="button"
+                </Link>
+                <Link 
+                  to="/terms-of-service"
                   className="hover:text-white transition-colors"
-                  onClick={() => console.log('Terms clicked')}
                 >
                   Terms
-                </button>
+                </Link>
               </div>
             </div>
             

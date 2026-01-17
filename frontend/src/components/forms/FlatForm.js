@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../services/api';
 
@@ -16,23 +16,16 @@ const FlatForm = ({ flatId = null }) => {
     ownerId: ''
   });
 
-  useEffect(() => {
-    fetchOwners();
-    if (flatId) {
-      fetchFlat();
-    }
-  }, [flatId]);
-
-  const fetchOwners = async () => {
+  const fetchOwners = useCallback(async () => {
     try {
       const response = await apiService.users.getByRole('OWNER');
       setOwners(response.data.data.users);
     } catch (error) {
       console.error('Error fetching owners:', error);
     }
-  };
+  }, []);
 
-  const fetchFlat = async () => {
+  const fetchFlat = useCallback(async () => {
     try {
       const response = await apiService.flats.getById(flatId);
       const flat = response.data.data.flat;
@@ -48,7 +41,14 @@ const FlatForm = ({ flatId = null }) => {
     } catch (error) {
       console.error('Error fetching flat:', error);
     }
-  };
+  }, [flatId]);
+
+  useEffect(() => {
+    fetchOwners();
+    if (flatId) {
+      fetchFlat();
+    }
+  }, [fetchOwners, fetchFlat, flatId]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

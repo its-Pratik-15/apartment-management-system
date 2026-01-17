@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 import { showSuccess, showError, showLoading, dismissToast } from '../components/ErrorMessage';
@@ -18,11 +18,7 @@ const IssueEdit = () => {
     resolution: ''
   });
 
-  useEffect(() => {
-    fetchIssue();
-  }, [id]);
-
-  const fetchIssue = async () => {
+  const fetchIssue = useCallback(async () => {
     try {
       setLoading(true);
       const response = await apiService.issues.getById(id);
@@ -43,7 +39,11 @@ const IssueEdit = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, navigate]);
+
+  useEffect(() => {
+    fetchIssue();
+  }, [fetchIssue]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;

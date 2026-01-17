@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../services/api';
 
@@ -21,13 +21,7 @@ const NoticeForm = ({ noticeId = null }) => {
     { value: 'ALL', label: 'All Residents' }
   ];
 
-  useEffect(() => {
-    if (noticeId) {
-      fetchNotice();
-    }
-  }, [noticeId]);
-
-  const fetchNotice = async () => {
+  const fetchNotice = useCallback(async () => {
     try {
       const response = await apiService.notices.getById(noticeId);
       const notice = response.data.data.notice;
@@ -41,7 +35,13 @@ const NoticeForm = ({ noticeId = null }) => {
     } catch (error) {
       console.error('Error fetching notice:', error);
     }
-  };
+  }, [noticeId]);
+
+  useEffect(() => {
+    if (noticeId) {
+      fetchNotice();
+    }
+  }, [noticeId, fetchNotice]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;

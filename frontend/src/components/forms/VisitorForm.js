@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
@@ -16,18 +16,7 @@ const VisitorForm = ({ visitorId = null }) => {
     flatId: ''
   });
 
-  useEffect(() => {
-    if (user.role === 'GUARD') {
-      fetchFlats();
-    } else if (user.role === 'OWNER' || user.role === 'TENANT') {
-      fetchUserFlat();
-    }
-    if (visitorId) {
-      fetchVisitor();
-    }
-  }, [visitorId, user.role]);
-
-  const fetchUserFlat = async () => {
+  const fetchUserFlat = useCallback(async () => {
     try {
       if (user.role === 'OWNER') {
         const response = await apiService.flats.getAll({ ownerId: user.id });
@@ -44,9 +33,9 @@ const VisitorForm = ({ visitorId = null }) => {
       console.error('Error fetching user flat:', error);
       showError('Failed to load your flat information.');
     }
-  };
+  }, [user.role, user.id]);
 
-  const fetchFlats = async () => {
+  const fetchFlats = useCallback(async () => {
     try {
       const response = await apiService.flats.getAll({ limit: 100 });
       setFlats(response.data.data.flats);
@@ -54,9 +43,9 @@ const VisitorForm = ({ visitorId = null }) => {
       console.error('Error fetching flats:', error);
       showError('Failed to load flats. Please refresh the page.');
     }
-  };
+  }, []);
 
-  const fetchVisitor = async () => {
+  const fetchVisitor = useCallback(async () => {
     try {
       const response = await apiService.visitors.getById(visitorId);
       const visitor = response.data.data.visitor;
@@ -70,7 +59,18 @@ const VisitorForm = ({ visitorId = null }) => {
       console.error('Error fetching visitor:', error);
       showError('Failed to load visitor information.');
     }
-  };
+  }, [visitorId]);
+
+  useEffect(() => {
+    if (user.role === 'GUARD') {
+      fetchFlats();
+    } else if (user.role === 'OWNER' || user.role === 'TENANT') {
+      fetchUserFlat();
+    }
+    if (visitorId) {
+      fetchVisitor();
+    }
+  }, [visitorId, user.role, fetchFlats, fetchUserFlat, fetchVisitor]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

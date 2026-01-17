@@ -82,10 +82,10 @@ const Footer = () => {
               </ul>
             </div>
 
-            {/* Support */}
+            {/* Contact */}
             <div>
               <h4 className="text-sm font-semibold text-gray-200 uppercase tracking-wider mb-4">
-                Support
+                Contact
               </h4>
               <ul className="space-y-2">
                 <li>
@@ -137,27 +137,24 @@ const Footer = () => {
                 © {currentYear} Apartment Management System. All rights reserved.
               </p>
               <div className="flex space-x-6 text-sm text-gray-400">
-                <button 
-                  type="button"
+                <Link 
+                  to="/privacy-policy"
                   className="hover:text-white transition-colors"
-                  onClick={() => console.log('Privacy Policy clicked')}
                 >
                   Privacy Policy
-                </button>
-                <button 
-                  type="button"
+                </Link>
+                <Link 
+                  to="/terms-of-service"
                   className="hover:text-white transition-colors"
-                  onClick={() => console.log('Terms of Service clicked')}
                 >
                   Terms of Service
-                </button>
-                <button 
-                  type="button"
+                </Link>
+                <Link 
+                  to="/cookie-policy"
                   className="hover:text-white transition-colors"
-                  onClick={() => console.log('Cookie Policy clicked')}
                 >
                   Cookie Policy
-                </button>
+                </Link>
               </div>
             </div>
             <div className="text-sm text-gray-400">

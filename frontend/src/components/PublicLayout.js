@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import PublicNavigation from './PublicNavigation';
 
 const PublicLayout = ({ children }) => {
@@ -117,27 +118,24 @@ const PublicLayout = ({ children }) => {
                 © 2024 ApartmentPro. All rights reserved.
               </p>
               <div className="flex space-x-6 mt-4 md:mt-0">
-                <button 
-                  type="button"
+                <Link 
+                  to="/privacy-policy"
                   className="text-gray-400 hover:text-white text-sm transition-colors"
-                  onClick={() => console.log('Privacy Policy clicked')}
                 >
                   Privacy Policy
-                </button>
-                <button 
-                  type="button"
+                </Link>
+                <Link 
+                  to="/terms-of-service"
                   className="text-gray-400 hover:text-white text-sm transition-colors"
-                  onClick={() => console.log('Terms of Service clicked')}
                 >
                   Terms of Service
-                </button>
-                <button 
-                  type="button"
+                </Link>
+                <Link 
+                  to="/cookie-policy"
                   className="text-gray-400 hover:text-white text-sm transition-colors"
-                  onClick={() => console.log('Cookie Policy clicked')}
                 >
                   Cookie Policy
-                </button>
+                </Link>
               </div>
             </div>
           </div>

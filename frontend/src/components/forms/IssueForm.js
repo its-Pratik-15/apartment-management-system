@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiService } from '../../services/api';
 
@@ -30,13 +30,7 @@ const IssueForm = ({ issueId = null }) => {
     { value: 'URGENT', label: 'Urgent' }
   ];
 
-  useEffect(() => {
-    if (issueId) {
-      fetchIssue();
-    }
-  }, [issueId]);
-
-  const fetchIssue = async () => {
+  const fetchIssue = useCallback(async () => {
     try {
       const response = await apiService.issues.getById(issueId);
       const issue = response.data.data.issue;
@@ -49,7 +43,13 @@ const IssueForm = ({ issueId = null }) => {
     } catch (error) {
       console.error('Error fetching issue:', error);
     }
-  };
+  }, [issueId]);
+
+  useEffect(() => {
+    if (issueId) {
+      fetchIssue();
+    }
+  }, [issueId, fetchIssue]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
