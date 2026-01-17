@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import PublicNavigation from './PublicNavigation';
 
@@ -20,7 +19,7 @@ const PublicLayout = ({ children }) => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                 </div>
-                <span className="text-xl font-bold">ApartmentPro</span>
+                <span className="text-xl font-bold">Apartment Management System</span>
               </div>
               <p className="text-gray-300 mb-4 max-w-md">
                 Modern apartment management made simple. Streamline your property operations with our comprehensive management system.
@@ -58,7 +57,7 @@ const PublicLayout = ({ children }) => {
               </h3>
               <ul className="space-y-3">
                 <li>
-                  <a href="#features" className="text-gray-300 hover:text-white transition-colors">
+                  <a href="/#features" className="text-gray-300 hover:text-white transition-colors">
                     Features
                   </a>
                 </li>
@@ -70,11 +69,6 @@ const PublicLayout = ({ children }) => {
                 <li>
                   <a href="/login" className="text-gray-300 hover:text-white transition-colors">
                     Login
-                  </a>
-                </li>
-                <li>
-                  <a href="#contact" className="text-gray-300 hover:text-white transition-colors">
-                    Contact
                   </a>
                 </li>
               </ul>
@@ -90,7 +84,7 @@ const PublicLayout = ({ children }) => {
                   <svg className="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                   </svg>
-                  <span className="text-gray-300">support@apartmentpro.com</span>
+                  <a href="/#contact" className="text-gray-300 hover:text-white transition-colors">support@apartmentpro.com</a>
                 </li>
                 <li className="flex items-center">
                   <svg className="h-5 w-5 text-gray-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -115,7 +109,7 @@ const PublicLayout = ({ children }) => {
           <div className="mt-8 pt-8 border-t border-gray-800">
             <div className="flex flex-col md:flex-row justify-between items-center">
               <p className="text-gray-400 text-sm">
-                © 2024 ApartmentPro. All rights reserved.
+                © 2024 Apartment Management System. All rights reserved.
               </p>
               <div className="flex space-x-6 mt-4 md:mt-0">
                 <Link 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 const PublicNavigation = () => {
@@ -8,8 +8,8 @@ const PublicNavigation = () => {
   const navigation = [
     { name: 'Home', href: '/', current: location.pathname === '/' },
     { name: 'About', href: '/about', current: location.pathname === '/about' },
-    { name: 'Features', href: '#features', current: false },
-    { name: 'Contact', href: '#contact', current: false },
+    { name: 'Features', href: '/#features', current: false },
+    { name: 'Contact', href: '/#contact', current: false },
   ];
 
   return (
@@ -31,7 +31,7 @@ const PublicNavigation = () => {
           {/* Desktop navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
-              item.href.startsWith('#') ? (
+              item.href.startsWith('#') || item.href.includes('#') ? (
                 <a
                   key={item.name}
                   href={item.href}
@@ -102,7 +102,7 @@ const PublicNavigation = () => {
         <div className="md:hidden">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-gray-200">
             {navigation.map((item) => (
-              item.href.startsWith('#') ? (
+              item.href.startsWith('#') || item.href.includes('#') ? (
                 <a
                   key={item.name}
                   href={item.href}
